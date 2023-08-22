@@ -1,0 +1,104 @@
+#+title: bash
+#+author: j0lms
+#+description: illiterate config file
+#+startup: content
+#+options:toc:1
+
+* toc :toc:
+:PROPERTIES:
+:ID:       b66f8aee-7655-4461-9478-8df471e5b434
+:END:
+- [[#profile][profile]]
+- [[#aliases][aliases]]
+
+* profile
+:PROPERTIES:
+:ID:       1785ba82-e69f-4860-8e24-b18d6e1f0fd5
+:END:
+#+begin_src bash :tangle ~/.bash_profile 
+  export PYENV_ROOT="$HOME/.pyenv"
+  command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init -)"
+
+  export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+  export SUDO_EDITOR='emacsclient -c -a emacs -nw'
+  export SUDO_ASKPASS=$(which ksshaskpass)
+  export PATH="$HOME/.voi.d/bin:$PATH"
+  export PATH="$HOME/.cargo/bin:$PATH"
+
+  HISTCONTROL=ignoreboth
+  HISTSIZE=1000
+  HISTFILESIZE=2000
+
+  shopt -s histappend
+  shopt -s checkwinsize
+
+  if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+      debian_chroot=$(cat /etc/debian_chroot)
+  fi
+
+  case "$TERM" in
+      xterm-color|*-256color) color_prompt=yes;;
+  esac
+
+  if [ -n "$force_color_prompt" ]; then
+      if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	  color_prompt=yes
+      else
+	  color_prompt=
+      fi
+  fi
+
+  if [ "$color_prompt" = yes ]; then
+      PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+  else
+      PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+  fi
+
+  unset color_prompt force_color_prompt
+
+  case "$TERM" in
+      xterm*|rxvt*)
+	  PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+	  ;;
+      ,*)
+	  ;;
+  esac
+
+  if [ -x /usr/bin/dircolors ]; then
+      test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+      alias ls='ls --color=auto'
+      alias dir='dir --color=auto'
+      alias vdir='vdir --color=auto'
+
+      alias grep='grep --color=auto'
+      alias fgrep='fgrep --color=auto'
+      alias egrep='egrep --color=auto'
+  fi
+
+  if [ -f ~/.bash_aliases ]; then
+      . ~/.bash_aliases
+  fi
+
+  if [ -n "$BASH_VERSION" ]; then
+      if [ -f "$HOME/.bashrc" ]; then
+	  . "$HOME/.bashrc"
+      fi
+  fi
+
+  if [ -d "$HOME/bin" ] ; then
+      PATH="$HOME/bin:$PATH"
+  fi
+
+  if [ -d "$HOME/.local/bin" ] ; then
+      PATH="$HOME/.local/bin:$PATH"
+  fi  
+#+end_src
+* aliases
+:PROPERTIES:
+:ID:       b21e89a9-bfdf-4a63-82c0-b67435d89063
+:END:
+#+begin_src bash :tangle ~/.bash_aliases
+  alias xonsh='~/.voi.d/bin/xonsh-tmux-prewarmed'
+  alias void='~/.voi.d/bin/void'
+#+end_src

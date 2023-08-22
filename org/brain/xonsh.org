@@ -1,0 +1,448 @@
+#+title: xonsh
+#+author: j0lms
+#+description: illiterate config file
+#+startup: content
+#+options:toc:1
+
+* toc :toc:
+:PROPERTIES:
+:ID:       618d96d2-a0a7-4d0d-a202-fc518b80059f
+:END:
+- [[#settings][settings]]
+- [[#xontribs][xontribs]]
+- [[#aliases][aliases]]
+- [[#funcs][funcs]]
+- [[#bindings][bindings]]
+- [[#events][events]]
+
+* settings
+:PROPERTIES:
+:ID:       45dbad66-a984-4ed5-b621-fd4ff83430c1
+:END:
+#+begin_src xonsh :tangle ~/.xonshrc
+  xontrib load coreutils
+
+  import os
+  import sys
+  import ast
+  import distro
+  import random
+  import fileinput
+
+  import xonsh.pretty
+  xonsh.pretty.for_type(type(1), lambda int, printer, cycle: printer.text(f'{int:,}'))
+  xonsh.pretty.for_type(type(1.0), lambda float, printer, cycle: printer.text(f'{float:,}'))
+
+  $AUTO_CD=True
+  $MULTILINE_PROMPT = '`·.,¸,.·*¯`·.,¸,.·*¯'
+  $XONSH_SHOW_TRACEBACK = True
+  $XONSH_STORE_STDOUT = True
+  $XONSH_HISTORY_MATCH_ANYWHERE = True
+  $XONSH_HISTORY_BACKEND = 'sqlite'
+  $XONTRIB_SH_SHELLS = ['bash', 'sh']
+  $XONSH_TRACEBACK_LOGFILE = '~/.voi.d/log/xonsh.log'
+  $XONSH_CAPTURE_ALWAYS= True 
+  $XONSH_AUTOPAIR = True
+#+end_src
+* xontribs
+:PROPERTIES:
+:ID:       3f8c575d-a043-4c46-bfa3-67f5268715fd
+:END:
+#+begin_src xonsh :tangle ~/.xonshrc
+  xontrib load sh
+  xontrib load back2dir
+  xontrib load sh
+  xontrib load output_search
+  xontrib load powerline2
+
+  $PL_COLORS['who'] = ['BLACK', 'WHITE']
+  $PL_COLORS['git_root'] = ['GREEN', '#00adee']
+  $PL_PROMPT='short_cwd>rtns'
+  $PL_RPROMPT = '!'
+#+end_src
+* TODO aliases
+:PROPERTIES:
+:ID:       89cd507d-d6a3-4674-81be-7a7421638f4c
+:END:
+#+begin_src xonsh :tangle ~/.xonshrc
+  aliases['xr'] = '$(source "~/.xonshrc")'
+  aliases['v'] = 'void'
+  aliases['.v'] = 'cd ~/.voi.d/'
+  aliases['amx'] = 'cat ~/.config/emacs/amx-items'
+  aliases['e'] = 'emacsclient -c -a "emacs $arg0"'
+  aliases['e&'] = 'emacsclient -c -a "emacs &"'
+  aliases['en'] = 'emacsclient -c -a "emacs $arg0" -nw'
+  aliases['ed'] = 'emacs --daemon'
+  aliases['edg'] = 'emacs --debug-init'
+  aliases['elisp'] = """$(emacs --batch --eval "'(while t (print (eval (read $arg0)))))""" # ??
+  aliases['mc'] = 'mkdir -pv $arg0 && cd $arg0'
+  aliases['dk'] = 'konsole --builtin-profile'
+  aliases['sp'] = 'speedometer -r $(nmcli device | awk "{print $1,$3}" | batgrep -B 0 -A 0 " conec" | awk "{print $1}" | tr -d "\\n" | tr -d "─" | tr -d " ")'
+  aliases['hs'] = """history pull && echo ' ' && sqlite3 $XONSH_HISTORY_FILE @("SELECT inp FROM xonsh_history WHERE inp LIKE '%" + $arg0 + "%' AND inp NOT LIKE 'hs %' ORDER BY tsb DESC LIMIT 50");"""
+  aliases['hp'] = 'history pull'
+  aliases['hw'] = 'sqlite_web $XONSH_HISTORY_FILE'
+  aliases['pyl'] = 'pyenv shims --short> "~/.voi.d/log/pyl.log" && cat "~/.voi.d/log/pyl.log"'
+  aliases['pil'] = 'pip list -l --debug -v -v -v > "~/.voi.d/log/pip.log" && cat "~/.voi.d/log/pip.log"'
+  aliases['pyla'] = 'pyenv install -v $(pyenv latest $arg0)'
+  aliases['pyi'] = 'pyenv install -v'
+  aliases['pyg'] = 'pyenv global'
+  aliases['pyc'] = 'pyenv local'
+  aliases['..'] = 'cd ..'
+  aliases['..1'] = 'cd .. && cd ..'
+  aliases['..2'] = 'cd .. && cd .. && cd ..'
+  aliases['..3'] = 'cd .. && cd .. && cd .. && cd ..'
+  aliases['c'] = 'clear'
+  aliases['h'] = 'history'
+  aliases['j'] = 'jobs -l'
+  aliases['ya'] = 'date +"%d-%m-%Y %H:%M:%S"'
+  aliases['qp'] = 'qmmp'
+  aliases['mem'] = 'free -m -l -t'
+  aliases['psm'] = 'ps auxf | sort -nr -k 4  > "~/.voi.d/log/psm.log" && cat "~/.voi.d/log/psm.log"'
+  aliases['psm10'] = 'ps auxf | sort -nr -k 4 | head -10 >  "~/.voi.d/log/psm10.log" && cat "~/.voi.d/log/psm10.log"'
+  aliases['psc'] = 'ps auxf | sort -nr -k 3 > "~/.voi.d/log/psc.log" && cat "~/.voi.d/log/psc.log"'
+  aliases['psc10'] = 'ps auxf | sort -nr -k 3 | head -10 > "~/.voi.d/log/psc10.log" && cat "~/.voi.d/log/psc10.log"'
+  aliases['wget'] = 'wget -c' 
+  aliases['top'] = 'htop'
+  aliases['ard'] = 'sh ~/Descargas/ardour/gtk2_ardour/ardev'
+  aliases['g'] = 'git'
+  aliases['gr'] = 'git rm -rf'
+  aliases['gs'] = 'git status -v'
+  aliases['ga'] = 'git add'
+  aliases['gc'] = 'git commit -m @($arg0)'
+  aliases['gp'] = 'git push origin master'
+  aliases['gd'] = 'git diff | batdiff'
+  aliases['gl'] = 'git pull origin master'
+  aliases['gh'] = 'git clone @("ssh://git@github.com/" + $arg0[19:])'
+  aliases['cb'] = 'git clone @("ssh://git@codeberg.org/" + $arg0[21:])'
+  aliases['cat'] = 'prettybat'
+  aliases['grep'] = 'batgrep'
+  aliases['man'] = 'batman'
+  aliases['diff'] = 'batdiff'
+  aliases['watch'] = 'batwatch'
+  aliases['rg'] = '~/.cargo/bin/rg'
+  aliases['co'] = 'coconut'
+  aliases['ls'] = 'exa'
+  aliases['f'] = 'flatpak'
+  aliases['fo'] = 'flatpak remotes'  
+  aliases['fa'] = 'flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo'
+  aliases['fs'] = 'flatpak search'
+  aliases['fi'] = 'flatpak install flathub'
+  aliases['fr'] = 'flatpak run'
+  aliases['fu'] = 'flatpak uninstall'
+  aliases['fh'] = 'flatpak history'
+  aliases['fl'] = 'flatpak list --all > "~/.voi.d/log/fl.log" && cat "~/.voi.d/log/fl.log"'
+  aliases['t'] = 'tmux'
+  aliases['ts'] = 'tmux switch -t'
+  aliases['tl'] = 'tmux ls'
+  aliases['tlk'] = 'tmux list keys'
+  aliases['tq'] = 'tmux kill-server'
+  aliases['tmq'] = 'exit'
+  aliases['tk'] = 'tmux kill-session -t'
+  aliases['ta'] = "tmux list-sessions | sed -n '/(attached)/s/:.*//p'"
+  aliases['tc'] = 'tmux display-message -p '#S''
+  aliases['tc1'] = 'tmux display-message -p "#S"'
+  aliases['p'] = 'poetry'  
+  aliases['pu'] = 'poetry self update'
+  aliases['pn'] = 'poetry new'
+  aliases['pa'] = 'poetry add'
+  aliases['pr'] = 'poetry run'
+  aliases['psh'] = 'poetry shell'
+  aliases['pi'] = 'poetry install'
+  aliases['pc'] = 'poetry config --list'
+  aliases['ptr'] = 'poetry show --tree'
+  aliases['pov'] = 'poetry env list --full-path'
+  aliases['pra'] = 'poetry env remove --all'
+  aliases['pla'] = 'poetry show --latest'
+  aliases['se'] = 'sudo -e'
+  aliases['up'] = 'sudo nala update && sudo nala upgrade -y'
+  aliases['sn'] = 'sudo shutdown now'
+  aliases['ka'] = 'sudo killall'
+  aliases['d'] = 'sudo docker'
+  aliases['dl'] = 'sudo docker ps --all'
+  aliases['di'] = 'sudo docker info'
+  aliases['dr'] = 'sudo docker run'
+  aliases['dp'] = 'sudo docker system prune -a'
+  aliases['db'] = 'sudo docker build -t'
+  aliases['ds'] = 'sudo docker start|stop'
+  aliases['dcs'] = 'sudo docker container stats'
+  aliases['din'] = 'sudo docker inspect'
+  aliases['dlg'] = 'sudo docker logs -f'
+  aliases['dsh'] = 'sudo docker exec -it $arg0 sh'
+  aliases['dpl'] = 'sudo docker pull'
+  aliases['dre'] = 'sudo systemctl daemon-reload && sudo systemctl restart docker'
+  aliases['ddr'] = 'sudo docker info | grep "Docker Root Dir"'
+#+end_src
+
+* funcs
+:PROPERTIES:
+:ID:       baa2384d-5e61-490d-805b-fded078d74e2
+:END:
+#+begin_src xonsh :tangle ~/.xonshrc
+  @aliases.register('uf')
+  def xfetch():
+      try:
+	  clear
+	  reader = open(os.path.join(os.path.expanduser('~'), '.voi.d', 'bin', 'xfetch'))
+	  reader.close()
+	  chmod a+x ~/.voi.d/bin/xfetch
+      except Exception as e:
+	  distribution = distro.id()
+	  $LINK = "https://gitlab.com/jschx/ufetch/-/raw/main/ufetch-" + distribution
+	  curl -s $LINK > ~/.voi.d/bin/ufetch
+	  sed 's/shell="$(basename "${SHELL}")"/shell="xonsh"/g' ~/.voi.d/bin/ufetch > ~/.voi.d/bin/xfetch
+	  rm ~/.voi.d/bin/ufetch
+	  chmod a+x ~/.voi.d/bin/xfetch
+      ~/.voi.d/bin/xfetch
+      echo ' '
+  xfetch()
+
+  def pre_warm():
+      try:
+	  reader = open(os.path.join(os.path.expanduser('~'), '.voi.d', 'bin', 'xonsh-tmux-prewarmed'))
+	  reader.close()
+      except Exception as e:
+	  $LINK = "https://raw.githubusercontent.com/anki-code/xonsh-prewarmed/main/xonsh-screen-prewarmed"
+	  curl -s $LINK > ~/.voi.d/bin/xonsh-screen-prewarmed
+	  with open(os.path.join(os.path.expanduser('~'), '.voi.d', 'bin', 'xonsh-screen-prewarmed'), 'r') as input_file, open(os.path.join(os.path.expanduser('~'), '.voi.d', 'bin', 'xonsh-tmux-prewarmed'), 'w') as output_file:
+	      for line_number, line in enumerate(input_file):
+		  if line_number == 2:
+		    output_file.write('xonsh_run=("tmux" "-2" "new-session" "-d" "-s" "void" "$HOME/.pyenv/versions/3.11.4/bin/xonsh" "-DXONSH_PREWARMED=1" ";" "set" "-g" "status" "off")\nxonsh_run_two=("tmux" "-2" "new-session" "-s" "xonsh"  "$HOME/.pyenv/versions/3.11.4/bin/xonsh" "-DXONSH_PREWARMED=1" ";" "set" "-g" "status" "off")\n')
+		  else:
+		    output_file.write(line)
+	  rm ~/.voi.d/bin/xonsh-screen-prewarmed
+      chmod a+x ~/.voi.d/bin/xonsh-tmux-prewarmed
+  pre_warm()
+
+  @aliases.register('cf')
+  def check_file(file):
+      if !(test -e @(file)):
+	  if !(test -f @(file)) or !(test -d @(file)):
+	      return True
+	  else:
+	      return True
+      else:
+	  return False
+
+  @aliases.register('wg')
+  def wait_until_google_responds():
+      while not !(ping -c 1 8.8.8.8):
+	  $SECS = 10
+	  print(f'google is not responding, sleeping {$SECS} secs')
+	  sleep $SECS
+      ping -c 5 8.8.8.8
+
+  @aliases.register('gi')
+  def get_internet_interface():
+      for line in !(nmcli device):
+	  dev, typ, state, conn_name = line.split(None, 3)
+	  if typ == 'wifi' and (state == 'connected' or state == 'conectado'):
+	      return dev
+	  elif typ == 'ethernet' and (state == 'connected' or state == 'conectado'):
+	      return dev
+
+  @aliases.register('bth')
+  def batpath(result: list):
+      if result == []:
+	  path = $(pwd).replace('\n', '')
+	  regexp = '^'
+      elif len(result) == 1:
+	  path = $(pwd).replace('\n', '')
+	  regexp = result[0]
+      else:
+	  path = str(result[0])
+	  regexp = str(result[1])
+
+      matches = []
+      failures = []
+      finals = ''
+
+      for match in $(grep @(regexp) -B 0 -A 0  @(str(path))):
+	  if match == '':
+	      pass
+	  elif match == '─':
+	      pass
+	  else:
+	      matches.append(match)
+	      finals = ''.join(e for e in matches)
+	      finals = finals.replace('\n\n', '\n')
+	      finals = finals.splitlines()
+      out = {'matches': finals[1:], 'failures': failures}
+      return out
+
+  @aliases.register('pth')
+  def path(regexp: list):
+      string = str(regexp[0])
+      return [os.path.join(os.path.expanduser('~'), i, '\n') for i in os.listdir('.') if i.startswith(string)]
+
+  @aliases.register('pin')
+  def path_info():
+      @(sys.executable) -m site
+
+  @aliases.register('enit')
+  def emacs_init():
+    if not !(cf '~/.config/emacs/init.el').returncode:
+	@(['emacs', '--batch', r'--eval', """(require 'org)""", '--eval', '(org-babel-tangle-file "~/.voi.d/org/brain/init.org")'])
+	chmod a+x ~/.voi.d/bin/void
+    if not $(ps aux | grep emacs | grep daemon):
+	if 'void' in $(tc):
+	    echo 'Loading Emacs daemon...'
+	    $(ed)
+	    sleep 5
+	    void
+  emacs_init()
+
+  @aliases.register('enin')
+  def tangle_init():
+      @(['emacs', '--batch', r'--eval', """(require 'org)""", '--eval', '(org-babel-tangle-file "~/.voi.d/org/brain/init.org")'])
+
+  @aliases.register('tnxs')
+  def tangle_xonsh():
+      @(['emacs', '--batch', r'--eval', """(require 'org)""", '--eval', '(org-babel-tangle-file "~/.voi.d/org/brain/xonsh.org")'])
+      echo ' '
+
+#+end_src
+* TODO bindings
+:PROPERTIES:
+:ID:       bcd4b92b-7370-47b6-8563-4f3223a98510
+:END:
+#+begin_src xonsh :tangle ~/.xonshrc
+  from prompt_toolkit.keys import Keys
+  from prompt_toolkit.filters import Condition, EmacsInsertMode
+
+  @events.on_ptk_create
+  def custom_keybindings(bindings, **kw):
+
+      @bindings.add('c-t')
+      def run_ls(event):
+	  if p'$PWD/.git'.exists():
+	      echo ' '
+	      ls --long --all --header --tree --level=2 --git
+	      event.cli.renderer.erase()
+	  else:
+	      echo ' '
+	      ls --long --all --header --tree --level=2
+	      event.cli.renderer.erase()
+
+      @bindings.add('c-w', 'c-g')
+      def add_grep(event):
+	  event.current_buffer.insert_text(' | grep ')
+
+      @bindings.add('c-w', 'c-a')
+      def add_awk(event):
+	  event.current_buffer.insert_text(' | awk ')
+
+      @bindings.add('c-w', 'c-s')
+      def add_sed(event):
+	  event.current_buffer.insert_text(' | sed ')
+
+      @bindings.add('c-w', 'c-c')
+      def add_cat(event):
+	  event.current_buffer.insert_text(' | cat ')
+
+      @bindings.add('c-w', 'c-t')
+      def beep(event):
+          @(aliases['ts']) 0
+          @(aliases['tk']) @(aliases['tc1'])
+          event.cli.renderer.erase()
+
+      @bindings.add('c-e', 'c-r')
+      def emacs_client(event):
+	  echo ' '
+	  @(aliases['e']) &
+
+      @bindings.add('c-e', 'c-d')
+      def emacs_daemon(event):
+	  echo ' '
+	  @(aliases['enit'])
+	  @(aliases['ed'])
+	  echo ' '
+	  event.cli.renderer.erase()
+
+      @bindings.add('c-e', 'c-t')
+      def emacs_client_nw(event):
+	  @(aliases['en'])
+
+      @bindings.add('c-f')
+      def flatpak_list(event):
+	  event.current_buffer.insert_text('f__')
+
+      @bindings.add('c-p')
+      def ping_and_wait(event):
+	  echo ' '
+	  @(aliases['wg'])
+	  event.cli.renderer.erase()
+
+      @bindings.add('c-k')
+      def kill_tmux(event):
+	  @(aliases['tq'])
+
+      @bindings.add('c-t', 'c-i')
+      def tangle_init(event):
+	  @(aliases['enin'])
+
+      @bindings.add('c-t', 'c-s')
+      def kill_tmux(event):
+	  @(aliases['enit'])
+
+      @bindings.add('c-x', 'c-r')
+      def xonsh_reload(event):
+          @(aliases['tnxs'])
+	  @(aliases['xr'])
+	  event.cli.renderer.erase()
+	  echo ' '
+
+      @bindings.add('c-u')
+      def update_and_reload(event):
+	  @(aliases['up'])
+	  @(aliases['xr'])
+	  event.cli.renderer.erase()
+
+      @bindings.add('c-v')
+      def void(event):
+	  @(aliases['v'])
+
+
+#+end_src
+* events 
+:PROPERTIES:
+:ID:       25bf78fa-a766-4887-b2e1-7a208582c86b
+:END:
+
+#+begin_src xonsh :tangle ~/.xonshrc
+  @events.on_chdir
+  def mychdir(olddir, newdir, **kw):
+      echo @(olddir) ⇒ @(newdir)
+      if p'$PWD/.git'.exists():
+	  echo ' '
+	  ~/.cargo/bin/onefetch
+	  ls
+      elif len(g`./*`) < 100:
+	  echo ' '
+	  ls --long --header
+
+  @events.on_transform_command
+  def default_command_transform(cmd):
+      if not cmd or cmd.strip() == "":
+	  return defaultcmd()
+      return cmd
+
+  def defaultcmd():
+      $STRING = ''
+      min_repeats = 11
+      max_repeats = 14
+      max_lenght = 15
+      repeats = [i for i in range(min_repeats, max_repeats)]
+      components = [r'''~._.~"(''',r'''·`·.,.·''',r'''¬.-~-''',r'''~^~''',r'''·.,¸,.·*¯*·.''',r'''._.~"~''',r''',..,''',r'''.,¸,.·*¯`·''']
+      for i in range(1, max_lenght):
+          $STRING += random.choice(components*int(random.choice(repeats)))
+      return """! tput cuu 1 ; tput ed ; echo $STRING | lolcat -a -d 1000000 -s 7"""
+
+#+end_src
+#+begin_src xonsh
+  num1=3
+  num2=4
+  num1+num2
+#+end_src
+
+#+RESULTS:
+: 
