@@ -1,5 +1,0 @@
-
-* 618d96d2-a0a7-4d0d-a202-fc518b80059f
-:PROPERTIES:
-:ID:       7d6b7c2b-792a-4ec8-9e76-eda1a961c2d4
-:END:
