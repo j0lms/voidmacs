@@ -232,9 +232,9 @@
                         :height base-height
                         :weight 'bold)
 
-(when (fboundp 'set-fontset-font)
-    (set-fontset-font t #x2227 symbol-font-family nil 'prepend)  ;; (logical and)
-    (set-fontset-font t #x2228 symbol-font-family nil 'prepend)))) ;; (logical or)
+    (when (fboundp 'set-fontset-font)
+      (set-fontset-font t #x2227 symbol-font-family nil 'prepend)  ;; (logical and)
+      (set-fontset-font t #x2228 symbol-font-family nil 'prepend)))) ;; (logical or)
 
 (my-configure-fonts)
 (add-hook 'server-after-make-frame-hook #'my-configure-fonts)
