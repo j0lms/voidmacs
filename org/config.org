@@ -430,50 +430,56 @@
 #+end_src
 ** Dashboard
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(use-package dashboard
-  :config
-  (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
-  (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
-  (dashboard-setup-startup-hook)
-  (defface dashboard-navigator-non-italic
-    '((t (:inherit font-lock-keyword-face :slant normal :height 125)))
-    "Face used for the dashboard navigator (non-italic)."
-    :group 'dashboard)
-  (setq dashboard-startupify-list
-	'(dashboard-insert-banner
-	  dashboard-insert-newline
-	  dashboard-insert-banner-title
-	  dashboard-insert-newline
-	  dashboard-insert-navigator
-	  dashboard-insert-newline
-	  dashboard-insert-init-info
-	  dashboard-insert-items
-	  dashboard-insert-newline
-	  dashboard-insert-footer)
-	dashboard-navigator-buttons
-	`(((" " "GitHub" "Browse homepage"
-	    (lambda (&rest _) (browse-url "https://github.com/j0lms/voidmacs")) dashboard-navigator-non-italic)
-	   (" " "Config" "Open config"
-	    (lambda (&rest _) (find-file "~/.emacs.d/org/config.org")) dashboard-navigator-non-italic)
-	   ("󰶕 " "Restart" "Restart Emacs"
-	    (lambda (&rest _) (restart-emacs)) dashboard-navigator-non-italic)))
-	dashboard-display-icons-p t
-	dashboard-icon-type 'nerd-icons
-	dashboard-banner-logo-title "o̊"
-	dashboard-center-content t
-	dashboard-path-style 'truncate-middle
-	dashboard-path-max-length 60
-	dashboard-items '((recents  . 7) (projects  . 4))
-	dashboard-item-names '(("Recent Files:" . "󱒔  RECENT") ("Projects:" . "  PROJECTS"))
-	dashboard-startup-banner '("~/.emacs.d/banners/blackhole-lines.svg" . "~/.emacs.d/banners/blackhole-lines.txt")
-	dashboard-footer-icon " "
-	dashboard-footer-messages '("v󰎍idmacs")
-	dashboard-projects-backend 'projectile
-	dashboard-projects-switch-function 'projectile-persp-switch-project))
+(unless (is-android)
+  (use-package dashboard
+    :config
+    (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
+    (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
+    (dashboard-setup-startup-hook)
+    (defface dashboard-navigator-non-italic
+      '((t (:inherit font-lock-keyword-face :slant normal :height 125)))
+      "Face used for the dashboard navigator (non-italic)."
+      :group 'dashboard)
+    (setq dashboard-startupify-list
+	  '(dashboard-insert-banner
+	    dashboard-insert-newline
+	    dashboard-insert-banner-title
+	    dashboard-insert-newline
+	    dashboard-insert-navigator
+	    dashboard-insert-newline
+	    dashboard-insert-init-info
+	    dashboard-insert-items
+	    dashboard-insert-newline
+	    dashboard-insert-footer)
+	  dashboard-navigator-buttons
+	  `(((" " "GitHub" "Browse homepage"
+	      (lambda (&rest _) (browse-url "https://github.com/j0lms/voidmacs")) dashboard-navigator-non-italic)
+	     (" " "Config" "Open config"
+	      (lambda (&rest _) (find-file "~/.emacs.d/org/config.org")) dashboard-navigator-non-italic)
+	     ("󰶕 " "Restart" "Restart Emacs"
+	      (lambda (&rest _) (restart-emacs)) dashboard-navigator-non-italic)))
+	  dashboard-display-icons-p t
+	  dashboard-icon-type 'nerd-icons
+	  dashboard-banner-logo-title "o̊"
+	  dashboard-center-content t
+	  dashboard-path-style 'truncate-middle
+	  dashboard-path-max-length 60
+	  dashboard-items '((recents  . 7) (projects  . 4))
+	  dashboard-item-names '(("Recent Files:" . "󱒔  RECENT") ("Projects:" . "  PROJECTS"))
+	  dashboard-startup-banner '("~/.emacs.d/banners/blackhole-lines.svg" . "~/.emacs.d/banners/blackhole-lines.txt")
+	  dashboard-footer-icon " "
+	  dashboard-footer-messages '("v󰎍idmacs")
+	  dashboard-projects-backend 'projectile
+	  dashboard-projects-switch-function 'projectile-persp-switch-project)))
 
-(with-eval-after-load 'dashboard
-  (when (is-android)
-    (setq dashboard-startup-banner '("~/.emacs.d/banners/blackhole-lines.txt"))))
+(when (is-android)
+  (use-package dashboard
+    :config
+    (dashboard-setup-startup-hook)
+    (setq dashboard-center-content t
+          dashboard-show-shortcuts nil
+          dashboard-items '((recents  . 5))
+          dashboard-startup-banner '("~/.emacs.d/banners/blackhole-lines.txt"))))
 #+end_src
 ** Deadgrep
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
