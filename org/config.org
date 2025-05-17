@@ -486,7 +486,7 @@
 	  dashboard-footer-messages '("v󰎍idmacs")
 	  dashboard-footer-icon " "
 	  dashboard-projects-backend 'projectile
-	  dashboard-projects-switch-function 'projectile-persp-switch-project))))
+	  dashboard-projects-switch-function 'projectile-persp-switch-project)))
 #+end_src
 ** Deadgrep
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
