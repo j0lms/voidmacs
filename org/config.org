@@ -478,8 +478,15 @@
     (dashboard-setup-startup-hook)
     (setq dashboard-center-content t
           dashboard-show-shortcuts nil
-          dashboard-items '((recents  . 5))
-          dashboard-startup-banner '("~/.emacs.d/banners/blackhole-lines.txt"))))
+	  dashboard-banner-logo-title "o̊"
+	  dashboard-icon-type 'nerd-icons
+	  dashboard-items '((recents  . 7) (projects  . 4))
+	  dashboard-item-names '(("Recent Files:" . "󱒔  RECENT") ("Projects:" . "  PROJECTS"))
+          dashboard-startup-banner '("~/.emacs.d/banners/blackhole-lines.txt")
+	  dashboard-footer-messages '("v󰎍idmacs")
+	  dashboard-footer-icon " "
+	  dashboard-projects-backend 'projectile
+	  dashboard-projects-switch-function 'projectile-persp-switch-project))))
 #+end_src
 ** Deadgrep
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
