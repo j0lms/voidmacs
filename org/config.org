@@ -439,7 +439,7 @@
     '((t (:inherit font-lock-keyword-face :slant normal :height 125)))
     "Face used for the dashboard navigator (non-italic)."
     :group 'dashboard)
-  (setq dashboard-startupify-list 
+  (setq dashboard-startupify-list
 	'(dashboard-insert-banner
 	  dashboard-insert-newline
 	  dashboard-insert-banner-title
@@ -450,7 +450,7 @@
 	  dashboard-insert-items
 	  dashboard-insert-newline
 	  dashboard-insert-footer)
-	dashboard-navigator-buttons 
+	dashboard-navigator-buttons
 	`(((" " "GitHub" "Browse homepage"
 	    (lambda (&rest _) (browse-url "https://github.com/j0lms/voidmacs")) dashboard-navigator-non-italic)
 	   (" " "Config" "Open config"
@@ -470,6 +470,10 @@
 	dashboard-footer-messages '("v󰎍idmacs")
 	dashboard-projects-backend 'projectile
 	dashboard-projects-switch-function 'projectile-persp-switch-project))
+
+(with-eval-after-load 'dashboard
+  (when (is-android)
+    (setq dashboard-startup-banner '("~/.emacs.d/banners/blackhole-lines.txt"))))
 #+end_src
 ** Deadgrep
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -943,9 +947,10 @@
                   (delq (assoc symbol prettify-symbols-alist)
                         prettify-symbols-alist))))))
 
-(use-package ws-butler
-  :hook ((text-mode . ws-butler-mode)
-         (prog-mode . ws-butler-mode)))
+(unless (is-android)
+  (use-package ws-butler
+    :hook ((text-mode . ws-butler-mode)
+           (prog-mode . ws-butler-mode))))
 
 (use-package rainbow-mode
   :defer t
