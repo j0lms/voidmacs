@@ -965,7 +965,7 @@
 #+end_src
 ** Powershell
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(when is-windows
+(when (is-windows)
   (use-package powershell
     :defer t)
 
