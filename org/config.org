@@ -118,12 +118,15 @@
   "Return t if running on Android."
   (string= androidp "yes"))
 
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+
 (when (is-wsl-linux)
   (setq comp-native-comp-async-report-errors nil)
   (setq comp-native-comp-async-jobs 0)
   (setq native-comp-deferred-compilation nil))
 
-(org-babel-load-file 
+(org-babel-load-file
  (expand-file-name
   "~/.emacs.d/config.el"
   user-emacs-directory))
@@ -396,11 +399,12 @@
   :init
   (marginalia-mode))
 
-(use-package all-the-icons-completion
-  :after (marginalia all-the-icons)
-  :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
-  :init
-  (all-the-icons-completion-mode))
+(unless (is-android)
+  (use-package all-the-icons-completion
+    :after (marginalia all-the-icons)
+    :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
+    :init
+    (all-the-icons-completion-mode)))
 
 (use-package embark
   :defer t
@@ -479,11 +483,10 @@
     (setq dashboard-center-content t
           dashboard-show-shortcuts nil
 	  dashboard-banner-logo-title "o̊"
-	  dashboard-icon-type 'nerd-icons
 	  dashboard-items '((recents  . 7) (projects  . 4))
-	  dashboard-item-names '(("Recent Files:" . "󱒔  RECENT") ("Projects:" . "  PROJECTS"))
+	  dashboard-item-names '(("Recent Files:" . "RECENT") ("Projects:" . "PROJECTS"))
           dashboard-startup-banner '("~/.emacs.d/banners/blackhole-lines.txt")
-	  dashboard-footer-messages '("v󰎍idmacs")
+	  dashboard-footer-messages '("v⭘idmacs")
 	  dashboard-footer-icon " "
 	  dashboard-projects-backend 'projectile
 	  dashboard-projects-switch-function 'projectile-persp-switch-project)))
@@ -755,20 +758,21 @@
 #+end_src
 ** Icons
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(use-package all-the-icons
-  :defer t
-  :if (display-graphic-p))
+(unless (is-android)
+  (use-package all-the-icons
+    :defer t
+    :if (display-graphic-p))
 
-(use-package all-the-icons-dired
-  :defer t
-  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+  (use-package all-the-icons-dired
+    :defer t
+    :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
 
-(use-package nerd-icons
-  :defer t)
+  (use-package nerd-icons
+    :defer t)
 
-(use-package nerd-icons-ibuffer
-  :defer t
-  :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
+  (use-package nerd-icons-ibuffer
+    :defer t
+    :hook (ibuffer-mode . nerd-icons-ibuffer-mode)))
 #+end_src
 ** Indent
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el 
@@ -815,18 +819,28 @@
 #+end_src
 ** Modeline
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(use-package doom-modeline
-  :init 
-  (doom-modeline-mode 1)
-  :config
-  (setq doom-modeline-buffer-file-name-style 'truncate-with-project
-	doom-modeline-window-width-limit nil
-	doom-modeline-vcs-max-length 10
-	doom-modeline-icon t
-	nerd-icons-scale-factor 1)
-  (doom-modeline-def-modeline 'main
-    '(eldoc bar window-state workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
-    '(compilation objed-state misc-info project-name persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time "  ")))
+(unless (is-android)
+  (use-package doom-modeline
+    :init
+    (doom-modeline-mode 1)
+    :config
+    (setq doom-modeline-buffer-file-name-style 'truncate-with-project
+	  doom-modeline-window-width-limit nil
+	  doom-modeline-vcs-max-length 10
+	  doom-modeline-icon t
+	  nerd-icons-scale-factor 1)
+    (doom-modeline-def-modeline 'main
+      '(eldoc bar window-state workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
+      '(compilation objed-state misc-info project-name persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time "  "))))
+
+(when (is-android)
+  (use-package doom-modeline
+    :init
+    (doom-modeline-mode 1)
+    :config
+    (setq doom-modeline-buffer-file-name-style 'truncate-with-project
+	  doom-modeline-window-width-limit nil
+	  doom-modeline-vcs-max-length 10)))
 #+end_src
 ** Org
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -840,16 +854,17 @@
   :commands toc-org-enable
   :init (add-hook 'org-mode-hook 'toc-org-enable))
 
-(use-package org-modern
-  :hook (org-mode . org-modern-mode)
-  :init
-  (setq org-modern-label-border 'auto
-	org-modern-star nil
-	org-modern-hide-star nil
-	org-modern-block-name nil
-	org-modern-keyword nil
-	org-modern-timestamp t
-	org-modern-checkbox nil))
+(unless (is-android)
+  (use-package org-modern
+    :hook (org-mode . org-modern-mode)
+    :init
+    (setq org-modern-label-border 'auto
+	  org-modern-star nil
+	  org-modern-hide-star nil
+	  org-modern-block-name nil
+	  org-modern-keyword nil
+	  org-modern-timestamp t
+	  org-modern-checkbox nil)))
 
 (eval-after-load 'org
   (progn
@@ -886,29 +901,44 @@
   (not (member lang '("emacs-lisp" "python" "powershell"))))
 (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
 
-(defun org-icons ()
-  (setq prettify-symbols-alist '(("#+begin_src" . "❱")
-				 ("#+end_src" . "❰")
-				 ("#+RESULTS:" . "∴")
-				 ("#+begin_example" . "⋉")
-				 ("#+end_example" . "⋊")
-				 (":PROPERTIES:" . "")
-				 (":ID:" . "")
-				 (":END:" . "―")
-				 ("#+startup:" . "")
-				 ("#+title:" . "")
-				 ("#+author:" . "")
-				 ("#+header:" . "")
-				 ("#+name:" . "")
-				 ("#+filetags:" . "")
-				 ("#+description:" . "")
-				 ("#+subtitle:" . "󰨗")
-				 ("#+options:" . "󱕷")
-				 ("#+call:" . "󰃷")
-				 ("[ ]" . "")
-				 ("[X]" . "")
-				 ("[-]" . "")))
-  (prettify-symbols-mode))
+(unless (is-android)
+  (defun org-icons ()
+    (setq prettify-symbols-alist '(("#+begin_src" . "❱")
+				   ("#+end_src" . "❰")
+				   ("#+RESULTS:" . "∴")
+				   ("#+begin_example" . "⋉")
+				   ("#+end_example" . "⋊")
+				   (":PROPERTIES:" . "")
+				   (":ID:" . "")
+				   (":END:" . "----")
+				   ("#+startup:" . "")
+				   ("#+title:" . "")
+				   ("#+author:" . "")
+				   ("#+header:" . "")
+				   ("#+name:" . "")
+				   ("#+filetags:" . "")
+				   ("#+description:" . "")
+				   ("#+subtitle:" . "󰨗")
+				   ("#+options:" . "󱕷")
+				   ("#+call:" . "󰃷")
+				   ("[ ]" . "")
+				   ("[X]" . "")
+				   ("[-]" . "")))
+    (prettify-symbols-mode)))
+
+(when (is-android)
+  (defun org-icons ()
+    (setq prettify-symbols-alist '(("#+begin_src" . "❱")
+				   ("#+end_src" . "❰")
+				   ("#+RESULTS:" . "∴")
+				   ("#+begin_example" . "⋉")
+				   ("#+end_example" . "⋊")
+				   (":PROPERTIES:" . "☰")
+				   (":END:" . "----")
+				   ("#+title:" . "")
+				   ("#+author:" . "")
+				   ("#+options:" . "⚡")))
+    (prettify-symbols-mode)))
 
 (add-hook 'org-mode-hook 'org-icons)
 (add-hook 'org-babel-after-execute-hook #'org-display-inline-images)
@@ -1088,18 +1118,19 @@
 #+end_src
 ** Tabs
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(use-package centaur-tabs
-  :defer t
-  :config
-  (setq centaur-tabs-set-icons t 	
-	centaur-tabs-style "bar"
-	centaur-tabs-set-bar 'left
-	centaur-tabs-icon-type 'nerd-icons)
-  (set-face-attribute 'tab-line nil
-                    :background "#282b33")
-  :bind
-  ("C-<prior>" . centaur-tabs-backward)
-  ("C-<next>" . centaur-tabs-forward))
+(unless (is-android)
+  (use-package centaur-tabs
+    :defer t
+    :config
+    (setq centaur-tabs-set-icons t
+	  centaur-tabs-style "bar"
+	  centaur-tabs-set-bar 'left
+	  centaur-tabs-icon-type 'nerd-icons)
+    (set-face-attribute 'tab-line nil
+			:background "#282b33")
+    :bind
+    ("C-<prior>" . centaur-tabs-backward)
+    ("C-<next>" . centaur-tabs-forward)))
 #+end_src
 ** Treemacs
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -1160,7 +1191,7 @@
 	  treemacs-width-is-initially-locked       t
 	  treemacs-workspace-switch-cleanup        nil
 	  treemacs-python-executable               "python")
-    
+
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
     (treemacs-fringe-indicator-mode 'always)
@@ -1182,9 +1213,10 @@
 (use-package treemacs-magit
   :after (treemacs magit))
 
-(use-package treemacs-nerd-icons
-  :config
-  (treemacs-load-theme "nerd-icons"))
+(unless (is-android)
+  (use-package treemacs-nerd-icons
+    :config
+    (treemacs-load-theme "nerd-icons")))
 
 (add-hook 'treemacs-mode-hook (lambda() (display-line-numbers-mode -1)))
 #+end_src
@@ -1194,6 +1226,7 @@
   :defer t
   :init
   (global-undo-tree-mode 1))
+
 (with-eval-after-load 'undo-tree
   (setq undo-tree-auto-save-history nil))
 #+end_src
@@ -1985,10 +2018,6 @@
 	 (side . right)
          (dedicated . t)
 	 (window-width . 0.4))))
-
-(when (display-graphic-p)
-   (tool-bar-mode -1)
-   (scroll-bar-mode -1))
 
 (menu-bar-mode 0)
 (blink-cursor-mode 0)
