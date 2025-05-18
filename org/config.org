@@ -401,14 +401,9 @@
   :custom
   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
   :init
-  (marginalia-mode))
-
-(unless (is-android)
-  (use-package all-the-icons-completion
-    :after (marginalia all-the-icons)
-    :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
-    :init
-    (all-the-icons-completion-mode)))
+  (marginalia-mode)
+  :config
+  (set-face-attribute 'marginalia-file-priv-dir nil :inherit 'font-lock-keyword-face :slant 'normal))
 
 (use-package embark
   :defer t
@@ -777,7 +772,13 @@
   (use-package nerd-icons-dired
     :defer t
     :hook
-    (dired-mode . nerd-icons-dired-mode)))
+    (dired-mode . nerd-icons-dired-mode))
+
+  (use-package nerd-icons-completion
+    :after marginalia
+    :config
+    (nerd-icons-completion-mode)
+    (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup)))
 #+end_src
 ** Indent
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el 
@@ -1027,12 +1028,12 @@
   (set-face-attribute 'diredfl-write-priv nil :inherit 'marginalia-file-priv-write :background 'unspecified)
   (set-face-attribute 'diredfl-no-priv nil :inherit 'marginalia-file-priv-no :background 'unspecified)
   (set-face-attribute 'diredfl-link-priv nil :inherit 'marginalia-file-priv-link :background 'unspecified)
-  (set-face-attribute 'diredfl-dir-priv nil :inherit 'font-lock-keyword-face :background 'unspecified :foreground 'unspecified)
+  (set-face-attribute 'diredfl-dir-priv nil :inherit 'font-lock-keyword-face :background 'unspecified :foreground 'unspecified :slant 'normal)
   (set-face-attribute 'diredfl-flag-mark-line nil :inherit 'warning :background 'unspecified)
   (set-face-attribute 'diredfl-deletion-file-name nil :inherit 'error :background 'unspecified)
   (set-face-attribute 'diredfl-deletion nil :inherit 'error :background 'unspecified)
   (set-face-attribute 'diredfl-number nil :foreground "#929292" :background 'unspecified)
-  (set-face-attribute 'diredfl-dir-name nil :inherit 'dired-directory :foreground "#D4B483" :background 'unspecified)
+  (set-face-attribute 'diredfl-dir-name nil :inherit 'font-lock-keyword-face :foreground "#c6c6c6" :background 'unspecified :slant 'normal)
   (set-face-attribute 'diredfl-file-name nil :foreground "#c6c6c6" :background 'unspecified)
   (set-face-attribute 'diredfl-flag-mark nil :foreground "#e59866" :background 'unspecified)
   (set-face-attribute 'diredfl-rare-priv nil :foreground "#89b4fa" :background 'unspecified)
