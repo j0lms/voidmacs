@@ -118,6 +118,10 @@
   "Return t if running on Android."
   (string= androidp "yes"))
 
+(defun is-windows ()
+  "Return t if running on Windows."
+  (string= windowp "yes"))
+
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 
@@ -934,10 +938,7 @@
 				   ("#+begin_example" . "⋉")
 				   ("#+end_example" . "⋊")
 				   (":PROPERTIES:" . "☰")
-				   (":END:" . "----")
-				   ("#+title:" . "")
-				   ("#+author:" . "")
-				   ("#+options:" . "⚡")))
+				   (":END:" . "----")))
     (prettify-symbols-mode)))
 
 (add-hook 'org-mode-hook 'org-icons)
@@ -964,15 +965,16 @@
 #+end_src
 ** Powershell
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(use-package powershell
-  :defer t)
+(when is-windows
+  (use-package powershell
+    :defer t)
 
-(use-package ob-powershell
-  :defer t
-  :after powershell
-  :commands
-  (org-babel-execute:powershell
-   org-babel-expand-body:powershell))
+  (use-package ob-powershell
+    :defer t
+    :after powershell
+    :commands
+    (org-babel-execute:powershell
+     org-babel-expand-body:powershell)))
 #+end_src
 ** Pretty
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
