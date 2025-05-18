@@ -767,18 +767,17 @@
     :defer t
     :if (display-graphic-p))
 
-  (use-package all-the-icons-dired
-    :defer t
-    :hook (dired-mode . (lambda () (all-the-icons-dired-mode t)))
-    :config
-    (set-face-attribute 'all-the-icons-dired-dir-face nil :inherit 'dired-directory :foreground "#FDFD96" :background 'unspecified))
-
   (use-package nerd-icons
     :defer t)
 
   (use-package nerd-icons-ibuffer
     :defer t
-    :hook (ibuffer-mode . nerd-icons-ibuffer-mode)))
+    :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
+
+  (use-package nerd-icons-dired
+    :defer t
+    :hook
+    (dired-mode . nerd-icons-dired-mode)))
 #+end_src
 ** Indent
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el 
@@ -1033,7 +1032,7 @@
   (set-face-attribute 'diredfl-deletion-file-name nil :inherit 'error :background 'unspecified)
   (set-face-attribute 'diredfl-deletion nil :inherit 'error :background 'unspecified)
   (set-face-attribute 'diredfl-number nil :foreground "#929292" :background 'unspecified)
-  (set-face-attribute 'diredfl-dir-name nil :inherit 'dired-directory :foreground "#FDFD96" :background 'unspecified)
+  (set-face-attribute 'diredfl-dir-name nil :inherit 'dired-directory :foreground "#D4B483" :background 'unspecified)
   (set-face-attribute 'diredfl-file-name nil :foreground "#c6c6c6" :background 'unspecified)
   (set-face-attribute 'diredfl-flag-mark nil :foreground "#e59866" :background 'unspecified)
   (set-face-attribute 'diredfl-rare-priv nil :foreground "#89b4fa" :background 'unspecified)
