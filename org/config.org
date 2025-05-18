@@ -769,7 +769,9 @@
 
   (use-package all-the-icons-dired
     :defer t
-    :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+    :hook (dired-mode . (lambda () (all-the-icons-dired-mode t)))
+    :config
+    (set-face-attribute 'all-the-icons-dired-dir-face nil :inherit 'dired-directory :foreground "#FDFD96" :background 'unspecified))
 
   (use-package nerd-icons
     :defer t)
@@ -985,7 +987,7 @@
   (global-pretty-mode t)
   (add-hook 'my-pretty-language-hook 'turn-on-pretty-mode)
   :config
-  (let ((symbols-to-remove '("->" "map" "/=" "!=" "==" 
+  (let ((symbols-to-remove '("->" "map" "/=" "!=" "=="
 			     "<=" ">=" "&&" "||" "...")))
     (setq prettify-symbols-alist
           (dolist (symbol symbols-to-remove prettify-symbols-alist)
@@ -1013,6 +1015,38 @@
   :after eshell-mode
   :config
   (eshell-syntax-highlighting-global-mode +1))
+
+(use-package diredfl
+  :defer t
+  :init
+  (diredfl-global-mode 1)
+  :config
+  (set-face-attribute 'diredfl-file-name nil :inherit 'marginalia-file-name :background 'unspecified)
+  (set-face-attribute 'diredfl-symlink nil :inherit 'font-lock-string-face :background 'unspecified)
+  (set-face-attribute 'diredfl-exec-priv nil :inherit 'marginalia-file-priv-exec :background 'unspecified)
+  (set-face-attribute 'diredfl-read-priv nil :inherit 'marginalia-file-priv-read :background 'unspecified)
+  (set-face-attribute 'diredfl-write-priv nil :inherit 'marginalia-file-priv-write :background 'unspecified)
+  (set-face-attribute 'diredfl-no-priv nil :inherit 'marginalia-file-priv-no :background 'unspecified)
+  (set-face-attribute 'diredfl-link-priv nil :inherit 'marginalia-file-priv-link :background 'unspecified)
+  (set-face-attribute 'diredfl-dir-priv nil :inherit 'font-lock-keyword-face :background 'unspecified :foreground 'unspecified)
+  (set-face-attribute 'diredfl-flag-mark-line nil :inherit 'warning :background 'unspecified)
+  (set-face-attribute 'diredfl-deletion-file-name nil :inherit 'error :background 'unspecified)
+  (set-face-attribute 'diredfl-deletion nil :inherit 'error :background 'unspecified)
+  (set-face-attribute 'diredfl-number nil :foreground "#929292" :background 'unspecified)
+  (set-face-attribute 'diredfl-dir-name nil :inherit 'dired-directory :foreground "#FDFD96" :background 'unspecified)
+  (set-face-attribute 'diredfl-file-name nil :foreground "#c6c6c6" :background 'unspecified)
+  (set-face-attribute 'diredfl-flag-mark nil :foreground "#e59866" :background 'unspecified)
+  (set-face-attribute 'diredfl-rare-priv nil :foreground "#89b4fa" :background 'unspecified)
+  (set-face-attribute 'diredfl-other-priv nil :inherit 'default :background 'unspecified)
+  (set-face-attribute 'diredfl-dir-heading nil :foreground "#FDFD96" :background 'unspecified)
+  (set-face-attribute 'diredfl-autofile-name nil :inherit 'default :background 'unspecified)
+  (set-face-attribute 'diredfl-tagged-autofile-name nil :inherit 'default :background 'unspecified)
+  (set-face-attribute 'diredfl-executable-tag nil :inherit 'default :foreground "#c6a0f6" :background 'unspecified)
+  (set-face-attribute 'diredfl-deletion nil :inherit 'default :foreground "#f7768e" :background 'unspecified)
+  (set-face-attribute 'diredfl-file-suffix nil :inherit 'default :foreground "#7ebebd" :background 'unspecified)
+  (set-face-attribute 'diredfl-deletion-file-name nil :inherit 'default :foreground "red" :background 'unspecified)
+  (set-face-attribute 'diredfl-compressed-file-name nil :inherit 'default :foreground "#929292" :background 'unspecified)
+  (set-face-attribute 'diredfl-compressed-file-suffix nil :inherit 'default :foreground "#89b4fa" :background 'unspecified))
 #+end_src
 ** Projectile
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
