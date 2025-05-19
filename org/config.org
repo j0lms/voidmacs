@@ -16,15 +16,15 @@
   - [[#cursor][Cursor]]
   - [[#dashboard][Dashboard]]
   - [[#deadgrep][Deadgrep]]
-  - [[#docker][Docker]]
   - [[#diffhl][Diffhl]]
+  - [[#docker][Docker]]
+  - [[#eglot][Eglot]]
   - [[#elisp][Elisp]]
   - [[#elpy][Elpy]]
-  - [[#eglot][Eglot]]
   - [[#flycheck][Flycheck]]
   - [[#git][Git]]
-  - [[#hungry][Hungry]]
   - [[#highlight][Highlight]]
+  - [[#hungry][Hungry]]
   - [[#icons][Icons]]
   - [[#indent][Indent]]
   - [[#ligatures][Ligatures]]
@@ -33,9 +33,9 @@
   - [[#modeline][Modeline]]
   - [[#org][Org]]
   - [[#origami][Origami]]
-  - [[#powershell][Powershell]]
   - [[#pretty][Pretty]]
   - [[#projectile][Projectile]]
+  - [[#shell][Shell]]
   - [[#smart][Smart]]
   - [[#snippets][Snippets]]
   - [[#tabs][Tabs]]
@@ -121,6 +121,10 @@
 (defun is-windows ()
   "Return t if running on Windows."
   (string= windowp "yes"))
+
+(defun is-linux ()
+  "Return t if running on Windows."
+  (string= linuxp "yes"))
 
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
@@ -527,12 +531,6 @@
 (use-package deadgrep
   :defer t)
 #+end_src
-** Docker
-#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(use-package dockerfile-mode
-  :defer t
-  :mode ("Dockerfile\\'" . dockerfile-mode))
-#+end_src
 ** Diffhl
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package diff-hl
@@ -541,6 +539,24 @@
   (global-diff-hl-mode +1)
   (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+#+end_src
+** Docker
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(use-package dockerfile-mode
+  :defer t
+  :mode ("Dockerfile\\'" . dockerfile-mode))
+#+end_src
+** Eglot
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(when (emacs-version-greater-or-equal 29 1)
+  (setq eglot-server-programs
+        '((python-mode . ("python" "-m" "pylsp"))))
+
+  (add-hook 'python-mode-hook 'eglot-ensure)
+
+  (setq eglot-autoshutdown t
+        eglot-events-buffer-size 0
+        eglot-send-changes-idle-time 0.5))
 #+end_src
 ** Elisp
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -597,32 +613,20 @@
   :defer t
   :hook (python-mode . uv-mode-auto-activate-hook))
 #+end_src
-** Eglot
-#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(when (emacs-version-greater-or-equal 29 1)
-  (setq eglot-server-programs
-        '((python-mode . ("python" "-m" "pylsp"))))
-
-  (add-hook 'python-mode-hook 'eglot-ensure)
-
-  (setq eglot-autoshutdown t
-        eglot-events-buffer-size 0
-        eglot-send-changes-idle-time 0.5))
-#+end_src
 ** Flycheck
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package flycheck
   :defer t
   :diminish
-  :init 
+  :init
   (global-flycheck-mode)
   (setq  flycheck-python-flake8-executable "python"
-	 flycheck-python-pycompile-executable "python" 
+	 flycheck-python-pycompile-executable "python"
 	 flycheck-python-ruff-executable "python"
 	 flycheck-python-pyright-executable "python"))
 
 (defun flycheck-parse-output (output checker buffer)
-  (let ((sanitized-output 
+  (let ((sanitized-output
 	 (replace-regexp-in-string "\r" "" output)))
     (funcall (flycheck-checker-get checker 'error-parser) sanitized-output checker buffer)))
 
@@ -747,18 +751,6 @@
 
 (add-hook 'ediff-mode-hook 'dt-ediff-hook)
 #+end_src
-** Hungry
-#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(use-package hungry-delete
-  :defer t
-  :init
-  (global-hungry-delete-mode)
-  :config
-  (setq hungry-delete-join-reluctantly nil)
-  (setq-default hungry-delete-chars-to-skip " \t\f\v\n"))
-
-(delete-selection-mode 1)
-#+end_src
 ** Highlight
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package hl-todo
@@ -787,6 +779,18 @@
   :defer t
   :hook (prog-mode . hes-mode))
 #+end_src
+** Hungry
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(use-package hungry-delete
+  :defer t
+  :init
+  (global-hungry-delete-mode)
+  :config
+  (setq hungry-delete-join-reluctantly nil)
+  (setq-default hungry-delete-chars-to-skip " \t\f\v\n"))
+
+(delete-selection-mode 1)
+#+end_src
 ** Icons
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (unless (is-android)
@@ -813,7 +817,7 @@
     (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup)))
 #+end_src
 ** Indent
-#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el 
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package indent-guide
   :defer t
   :init
@@ -849,7 +853,7 @@
   :hook ((markdown-mode . pandoc-mode)))
 #+end_src
 ** Minimap
-#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el 
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package minimap
   :defer t
   :init
@@ -1109,26 +1113,13 @@
   (my/org-roam-refresh-agenda-list))
 #+end_src
 ** Origami
-#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el 
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package origami
   :defer t
   :bind
   ("C-<tab>" . origami-recursively-toggle-node)
   :hook
   (server-after-make-frame-hook . global-origami-mode))
-#+end_src
-** Powershell
-#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(when (is-windows)
-  (use-package powershell
-    :defer t)
-
-  (use-package ob-powershell
-    :defer t
-    :after powershell
-    :commands
-    (org-babel-execute:powershell
-     org-babel-expand-body:powershell)))
 #+end_src
 ** Pretty
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -1241,6 +1232,23 @@
 (use-package persp-projectile
   :defer t)
 #+end_src
+** Shell
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(when (is-windows)
+  (use-package powershell
+    :defer t)
+
+  (use-package ob-powershell
+    :defer t
+    :commands
+    (org-babel-execute:powershell
+     org-babel-expand-body:powershell)))
+
+(when (is-linux)
+  (use-package fish-mode
+    :defer t
+    :mode "\\.fish\\'"))
+#+end_src
 ** Smart
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package smartparens
@@ -1289,7 +1297,7 @@
                                                       (yas--field-end field))
                                     (yas--templates-for-key-at-point))
                                 (yas--templates-for-key-at-point))))
-    (and templates-and-pos (first templates-and-pos)))) 
+    (and templates-and-pos (first templates-and-pos))))
 
 (defun my-can-expand ()
   "Return true if right after an expandable thing."
@@ -1435,7 +1443,7 @@
 (add-hook 'server-after-make-frame-hook
           (lambda ()
             (setq unicode-fonts-setup-done nil)
-            (unicode-fonts-setup))) 
+            (unicode-fonts-setup)))
 #+end_src
 ** Web
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -2162,8 +2170,6 @@
 #+end_src
 ** Global
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-;;(global-set-key (kbd "C-+") 'zoom-in)
-;;(global-set-key (kbd "C--") 'zoom-out)
 (global-set-key (kbd "C-+") 'my-text-scale-increase-all-faces)
 (global-set-key (kbd "C--") 'my-text-scale-decrease-all-faces)
 (global-set-key (kbd "C-*") 'my-text-scale-reset-all-faces)
@@ -2180,6 +2186,8 @@
 (global-set-key (kbd "C-g") 'prot/keyboard-quit-dwim)
 (global-set-key (kbd "C-a") 'my-smarter-move-beginning-of-line)
 (global-set-key (kbd "M-s /") 'my-multi-occur-in-matching-buffers)
+(global-set-key (kbd "M-p") 'prev-symbol)
+(global-set-key (kbd "M-n") 'next-symbol)
 #+end_src
 * GUI
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el

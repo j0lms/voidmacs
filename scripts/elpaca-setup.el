@@ -1,7 +1,7 @@
 ;;; elpaca-setup.el --- Elpaca package manager -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;;; Hosted at https://github.com/progfolio/elpaca
+;; Hosted at https://github.com/progfolio/elpaca
 
 ;;; Code:
 
