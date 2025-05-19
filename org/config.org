@@ -123,7 +123,7 @@
   (string= windowp "yes"))
 
 (defun is-linux ()
-  "Return t if running on Windows."
+  "Return t if running on Linux."
   (string= linuxp "yes"))
 
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
