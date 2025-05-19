@@ -190,7 +190,7 @@
   "Keeps track of the number of text scaling steps taken.")
 
 (defface dashboard-navigator-non-italic
-  '((t (:inherit font-lock-keyword-face :slant normal :height 125)))
+  '((t (:inherit font-lock-keyword-face :slant normal)))
   "Face used for the dashboard navigator (non-italic)."
   :group 'dashboard)
 
