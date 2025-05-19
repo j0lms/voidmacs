@@ -330,11 +330,7 @@
                     mode-line-buffer-id
                     highlight
                     shadow
-                    minibuffer-prompt
-                    vertico-current
-                    vertico-group-title
-                    vertico-group-separator
-                    vertico-multiline))
+                    minibuffer-prompt))
       (push (cons face font-height) my-original-face-heights))))
 
 
