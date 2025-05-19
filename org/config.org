@@ -182,13 +182,17 @@
 #+end_src
 * Fonts
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(unless (boundp 'text-scale-mode-step)
-  (defvar text-scale-mode-step 1.2
-    "Scaling factor used by text-scale-mode."))
+(setq text-scale-mode-step 1.2)
 
 (defvar font-height 110)
+
 (defvar my-font-scaling-steps 0
   "Keeps track of the number of text scaling steps taken.")
+
+(defface dashboard-navigator-non-italic
+  '((t (:inherit font-lock-keyword-face :slant normal :height 125)))
+  "Face used for the dashboard navigator (non-italic)."
+  :group 'dashboard)
 
 (defun my-find-available-font (font-list)
   "Return the first font name from FONT-LIST that is available on the system."
@@ -198,13 +202,14 @@
       (car font-list)))
 
 (defun my-configure-fonts ()
+  "Sets the initial base font attributes for various faces."
   (interactive)
   (let ((base-height font-height)
         (default-font-family (my-find-available-font '("FiraCode Nerd Font Mono" "DejaVu Sans Mono" "Monospace" "Courier New")))
         (variable-pitch-family (my-find-available-font '("Inter" "Roboto" "Segoe UI" "Helvetica" "DejaVu Sans" "Sans" "Arial")))
         (comment-keyword-family (my-find-available-font '("RobotoMono Nerd Font" "DejaVu Sans Mono" "Monospace" "Courier New")))
         (symbol-font-family (my-find-available-font '("JetBrainsMono NF" "Symbola" "Noto Sans Symbols2" "Monospace")))
-	(modeline-font-family (my-find-available-font '("FiraCode Nerd Font Mono" "DejaVu Sans Mono" "Monospace" "Courier New"))))
+        (modeline-font-family (my-find-available-font '("FiraCode Nerd Font Mono" "DejaVu Sans Mono" "Monospace" "Courier New"))))
 
     (set-face-attribute 'default nil
                         :font default-font-family
@@ -236,7 +241,7 @@
     (set-face-attribute 'mode-line nil
                         :font modeline-font-family
                         :height base-height
-			:weight 'medium)
+                        :weight 'medium)
 
     (set-face-attribute 'mode-line-buffer-id nil
                         :font modeline-font-family
@@ -256,86 +261,44 @@
     (set-face-attribute 'minibuffer-prompt nil
                         :font default-font-family
                         :height base-height
-			:weight 'bold)
+                        :weight 'bold)
+
+    (set-face-attribute 'dashboard-navigator-non-italic nil
+                        :font default-font-family
+                        :height (round (* base-height 1.25))
+                        :weight 'bold)
 
     (when (fboundp 'set-fontset-font)
       (set-fontset-font t #x2227 symbol-font-family nil 'prepend)    ;; (logical and)
       (set-fontset-font t #x2228 symbol-font-family nil 'prepend)))) ;; (logical or)
 
-(my-configure-fonts)
-
-(add-hook 'server-after-make-frame-hook #'my-configure-fonts)
-(add-hook 'elpaca-after-init-hook #'my-configure-fonts)
-
-(defun my-scale-fixed-height-faces (scale-factor current-frame)
-  "Scale faces whose height appears fixed and not solely relative to 'default'."
-  (dolist (face (face-list))
-    (unless (or (eq face 'default) (eq face 'header-line))
-      (let* ((explicit-frame-height-val (face-attribute face :height current-frame nil))
-             (explicit-global-height-val (face-attribute face :height t nil))
-             (height-to-scale nil)
-             (set-on-frame nil)
-             (is-explicit-integer-height nil))
-
-        (cond
-         ((integerp explicit-frame-height-val)
-          (setq height-to-scale explicit-frame-height-val
-                set-on-frame t
-                is-explicit-integer-height t))
-         ((integerp explicit-global-height-val)
-          (setq height-to-scale explicit-global-height-val
-                set-on-frame nil
-                is-explicit-integer-height t)))
-
-        (unless is-explicit-integer-height
-          (let* ((frame-height-spec-value (face-attribute face :height current-frame))
-                 (global-height-spec-value (face-attribute face :height t))
-                 (computed-height nil)
-                 (source-is-frame nil))
-
-            (if (and frame-height-spec-value (not (floatp frame-height-spec-value)))
-                (let ((h (face-attribute face :height current-frame t)))
-                  (when (integerp h)
-                    (setq computed-height h
-                          source-is-frame t)))
-              (when (and global-height-spec-value (not (floatp global-height-spec-value)))
-                (let ((h (face-attribute face :height t t)))
-                  (unless computed-height
-                    (when (integerp h)
-                      (setq computed-height h
-                            source-is-frame nil))))))
-
-            (when (integerp computed-height)
-              (setq height-to-scale computed-height
-                    set-on-frame source-is-frame))))
-
-        (when (integerp height-to-scale)
-          (let ((new-height (max 1 (round (* height-to-scale scale-factor)))))
-            (if set-on-frame
-                (set-face-attribute face current-frame :height new-height)
-              (set-face-attribute face nil :height new-height))))))))
-
 (defvar my-original-face-heights nil
-  "A list of cons cells (face . height) storing original face heights.")
+  "Alist of cons cells (face . height) storing *unscaled* face heights..")
 
 (defun my-capture-original-face-heights ()
-  "Capture the original height of faces we intend to scale."
-  (unless my-original-face-heights
-    (dolist (face '(default
-                    variable-pitch
-                    fixed-pitch
-                    font-lock-comment-face
-                    font-lock-keyword-face
-                    mode-line
-                    mode-line-buffer-id
-                    highlight
-                    shadow
-                    minibuffer-prompt))
-      (push (cons face font-height) my-original-face-heights))))
-
+  "Capture the current 'base' height of faces that will be scaled."
+  (setq my-original-face-heights nil)
+  (dolist (face '(default
+                  variable-pitch
+                  fixed-pitch
+                  font-lock-comment-face
+                  font-lock-keyword-face
+                  mode-line
+                  mode-line-buffer-id
+                  highlight
+                  shadow
+                  minibuffer-prompt
+                  dashboard-navigator-non-italic))
+    (let ((current-face-height (face-attribute face :height nil t)))
+      (unless (integerp current-face-height)
+        (setq current-face-height font-height))
+      (push (cons face current-face-height) my-original-face-heights))))
 
 (defun my-scale-all-managed-faces (total-scale-factor)
   "Scale all faces tracked in `my-original-face-heights' by TOTAL-SCALE-FACTOR."
+  (unless my-original-face-heights
+    (my-capture-original-face-heights))
+
   (dolist (pair my-original-face-heights)
     (let* ((face (car pair))
            (original-height (cdr pair))
@@ -343,32 +306,54 @@
       (when (get face 'face)
         (set-face-attribute face nil :height new-height)))))
 
+(defun my-text-scale-update-modeline ()
+  "Force an update of the modeline in all windows."
+  (let ((all-windows (if (fboundp 'live-windows)
+                         (live-windows)
+                       (window-list))))
+
+    (dolist (window all-windows)
+      (with-selected-window window
+        (force-mode-line-update)))))
+
 (defun my-text-scale-increase-all-faces (&optional arg)
   (interactive "P")
   (let ((steps (if arg (prefix-numeric-value arg) 1)))
-    (my-capture-original-face-heights)
     (setq my-font-scaling-steps (+ my-font-scaling-steps steps))
     (let ((total-scale-factor (expt text-scale-mode-step my-font-scaling-steps)))
-      (my-scale-all-managed-faces total-scale-factor))))
+      (my-scale-all-managed-faces total-scale-factor))
+    (my-text-scale-update-modeline)))
 
 (defun my-text-scale-decrease-all-faces (&optional arg)
   (interactive "P")
   (let ((steps (if arg (prefix-numeric-value arg) 1)))
-    (my-capture-original-face-heights)
     (setq my-font-scaling-steps (- my-font-scaling-steps steps))
     (let ((total-scale-factor (expt text-scale-mode-step my-font-scaling-steps)))
-      (my-scale-all-managed-faces total-scale-factor))))
+      (my-scale-all-managed-faces total-scale-factor))
+    (my-text-scale-update-modeline)))
 
 (defun my-text-scale-reset-all-faces ()
   (interactive)
   (when (/= my-font-scaling-steps 0)
     (setq my-font-scaling-steps 0)
-    (my-scale-all-managed-faces 1.0)))
+    (my-configure-fonts)
+    (my-capture-original-face-heights)
+    (my-text-scale-update-modeline)))
 
+(my-configure-fonts)
 (my-capture-original-face-heights)
 
-(add-hook 'server-after-make-frame-hook (lambda (&rest _) (my-capture-original-face-heights)))
-(add-hook 'elpaca-after-init-hook (lambda (&rest _) (my-capture-original-face-heights)))
+(add-hook 'server-after-make-frame-hook
+          (lambda (&rest _)
+            (my-configure-fonts)
+            (my-capture-original-face-heights)
+            (my-scale-all-managed-faces (expt text-scale-mode-step my-font-scaling-steps))))
+
+(add-hook 'elpaca-after-init-hook
+          (lambda (&rest _)
+            (my-configure-fonts)
+            (my-capture-original-face-heights)
+            (my-scale-all-managed-faces (expt text-scale-mode-step my-font-scaling-steps))))
 #+end_src
 * Packages
 ** Completion
@@ -490,10 +475,6 @@
     (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
     (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
     (dashboard-setup-startup-hook)
-    (defface dashboard-navigator-non-italic
-      '((t (:inherit font-lock-keyword-face :slant normal :height 125)))
-      "Face used for the dashboard navigator (non-italic)."
-      :group 'dashboard)
     (setq dashboard-startupify-list
 	  '(dashboard-insert-banner
 	    dashboard-insert-newline
@@ -876,11 +857,21 @@
 #+end_src
 ** Modeline
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(defun my-modeline-scaling-indicator ()
+  "Return a string indicating the current text scaling step for the modeline."
+  (let ((step my-font-scaling-steps))
+    (cond ((> step 0) (format "[+%d]" step))
+          ((< step 0) (format "[%d]" step))
+          (t ""))))
+
 (unless (is-android)
   (use-package doom-modeline
     :init
     (doom-modeline-mode 1)
     :config
+    (doom-modeline-def-segment my-scaling-indicator
+      "Returns the text for the scaling indicator."
+      (my-modeline-scaling-indicator))
     (setq doom-modeline-buffer-file-name-style 'truncate-with-project
 	  doom-modeline-window-width-limit nil
 	  doom-modeline-vcs-max-length 10
@@ -888,7 +879,7 @@
 	  nerd-icons-scale-factor 1)
     (doom-modeline-def-modeline 'main
       '(eldoc bar window-state workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
-      '(compilation objed-state misc-info project-name persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time "  "))))
+      '(compilation objed-state misc-info project-name persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time my-scaling-indicator "  "))))
 
 (when (is-android)
   (use-package doom-modeline
