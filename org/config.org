@@ -778,6 +778,25 @@
 (use-package highlight-escape-sequences
   :defer t
   :hook (prog-mode . hes-mode))
+
+(use-package volatile-highlights
+  :defer t
+  :init
+  (volatile-highlights-mode t)
+  :custom
+  (set-face-attribute 'vhl/default-face nil :foreground "#c6c6c6" :background "#89b4fa")
+  (vhl/define-extension 'undo-tree 'undo-tree-yank 'undo-tree-move)
+  (vhl/install-extension 'undo-tree))
+
+(use-package beacon
+  :defer t
+  :init
+  (beacon-mode 1)
+  :config
+  (setq beacon-blink-when-window-scrolls nil
+	beacon-blink-when-window-changes t
+	beacon-blink-when-point-moves nil
+	beacon-color "#cccccc"))
 #+end_src
 ** Hungry
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
