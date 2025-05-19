@@ -182,6 +182,10 @@
 #+end_src
 * Fonts
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(unless (boundp 'text-scale-mode-step)
+  (defvar text-scale-mode-step 1.2
+    "Scaling factor used by text-scale-mode."))
+
 (defvar font-height 110)
 (defvar my-font-scaling-steps 0
   "Keeps track of the number of text scaling steps taken.")
@@ -239,11 +243,27 @@
                         :height base-height
                         :weight 'bold)
 
+    (set-face-attribute 'highlight nil
+                        :font default-font-family
+                        :height base-height
+                        :weight 'medium)
+
+    (set-face-attribute 'shadow nil
+                        :font default-font-family
+                        :height base-height
+                        :weight 'medium)
+
+    (set-face-attribute 'minibuffer-prompt nil
+                        :font default-font-family
+                        :height base-height
+			:weight 'bold)
+
     (when (fboundp 'set-fontset-font)
       (set-fontset-font t #x2227 symbol-font-family nil 'prepend)    ;; (logical and)
       (set-fontset-font t #x2228 symbol-font-family nil 'prepend)))) ;; (logical or)
 
 (my-configure-fonts)
+
 (add-hook 'server-after-make-frame-hook #'my-configure-fonts)
 (add-hook 'elpaca-after-init-hook #'my-configure-fonts)
 
@@ -295,29 +315,64 @@
                 (set-face-attribute face current-frame :height new-height)
               (set-face-attribute face nil :height new-height))))))))
 
+(defvar my-original-face-heights nil
+  "A list of cons cells (face . height) storing original face heights.")
+
+(defun my-capture-original-face-heights ()
+  "Capture the original height of faces we intend to scale."
+  (unless my-original-face-heights
+    (dolist (face '(default
+                    variable-pitch
+                    fixed-pitch
+                    font-lock-comment-face
+                    font-lock-keyword-face
+                    mode-line
+                    mode-line-buffer-id
+                    highlight
+                    shadow
+                    minibuffer-prompt
+                    vertico-current
+                    vertico-group-title
+                    vertico-group-separator
+                    vertico-multiline))
+      (push (cons face font-height) my-original-face-heights))))
+
+
+(defun my-scale-all-managed-faces (total-scale-factor)
+  "Scale all faces tracked in `my-original-face-heights' by TOTAL-SCALE-FACTOR."
+  (dolist (pair my-original-face-heights)
+    (let* ((face (car pair))
+           (original-height (cdr pair))
+           (new-height (max 1 (round (* original-height total-scale-factor)))))
+      (when (get face 'face)
+        (set-face-attribute face nil :height new-height)))))
+
 (defun my-text-scale-increase-all-faces (&optional arg)
   (interactive "P")
   (let ((steps (if arg (prefix-numeric-value arg) 1)))
-    (text-scale-increase steps)
+    (my-capture-original-face-heights)
     (setq my-font-scaling-steps (+ my-font-scaling-steps steps))
-    (let ((scale-factor (expt text-scale-mode-step steps)))
-      (my-scale-fixed-height-faces scale-factor (selected-frame)))))
+    (let ((total-scale-factor (expt text-scale-mode-step my-font-scaling-steps)))
+      (my-scale-all-managed-faces total-scale-factor))))
 
 (defun my-text-scale-decrease-all-faces (&optional arg)
   (interactive "P")
   (let ((steps (if arg (prefix-numeric-value arg) 1)))
-    (text-scale-decrease steps)
+    (my-capture-original-face-heights)
     (setq my-font-scaling-steps (- my-font-scaling-steps steps))
-    (let ((scale-factor (expt (/ 1.0 text-scale-mode-step) steps)))
-      (my-scale-fixed-height-faces scale-factor (selected-frame)))))
+    (let ((total-scale-factor (expt text-scale-mode-step my-font-scaling-steps)))
+      (my-scale-all-managed-faces total-scale-factor))))
 
 (defun my-text-scale-reset-all-faces ()
   (interactive)
   (when (/= my-font-scaling-steps 0)
-    (if (> my-font-scaling-steps 0)
-        (my-text-scale-decrease-all-faces my-font-scaling-steps)
-      (my-text-scale-increase-all-faces (abs my-font-scaling-steps)))
-    (setq my-font-scaling-steps 0)))
+    (setq my-font-scaling-steps 0)
+    (my-scale-all-managed-faces 1.0)))
+
+(my-capture-original-face-heights)
+
+(add-hook 'server-after-make-frame-hook (lambda (&rest _) (my-capture-original-face-heights)))
+(add-hook 'elpaca-after-init-hook (lambda (&rest _) (my-capture-original-face-heights)))
 #+end_src
 * Packages
 ** Completion
@@ -1018,8 +1073,8 @@
   (setq dw/daily-note-filename "%<%Y-%m-%d>.org"
         dw/daily-note-header "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
   :custom
-  (org-roam-directory "~/.emacs.d/org/Notes/Roam/")
-  (org-roam-dailies-directory "~/.emacs.d/org/Notes/Journal/")
+  (org-roam-directory "~/.emacs.d/org/notes/roam/")
+  (org-roam-dailies-directory "~/.emacs.d/org/notes/journal/")
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
@@ -2120,6 +2175,8 @@
 #+end_src
 ** Global
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+;;(global-set-key (kbd "C-+") 'zoom-in)
+;;(global-set-key (kbd "C--") 'zoom-out)
 (global-set-key (kbd "C-+") 'my-text-scale-increase-all-faces)
 (global-set-key (kbd "C--") 'my-text-scale-decrease-all-faces)
 (global-set-key (kbd "C-*") 'my-text-scale-reset-all-faces)
