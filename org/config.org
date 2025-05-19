@@ -176,8 +176,8 @@
   (unless my-theme-loaded
     (with-selected-frame frame
       (if (is-wsl-linux)
-          (load-theme 'modus-vivendi t)
-        (load-theme 'wilmersdorf t))
+          (load-theme `modus-vivendi t)
+        (load-theme `wilmersdorf t))
       (setq my-theme-loaded t))))
 
 (if (daemonp)
@@ -1274,6 +1274,10 @@
   :defer t
   :init
   (smartparens-global-mode +1))
+
+(with-eval-after-load 'smartparens
+  (sp-local-pair '(emacs-lisp-mode) "'" "'" :when '(sp-in-string-p))
+  (sp-local-pair '(emacs-lisp-mode) "`" "`" :when '(sp-in-string-p)))
 
 (defun my-org-conditional-smartparens ()
   (let ((in-src-block (org-in-src-block-p t)))
