@@ -398,11 +398,32 @@
 
 (use-package orderless
   :defer t
+  :commands (orderless-filter)
   :init
   (setq completion-styles '(orderless)
         completion-category-defaults nil
 	orderless-component-separator "[ ,]"
         completion-category-overrides '((file (styles . (partial-completion))))))
+
+(use-package fzf-native
+  :ensure
+  (:repo "dangduc/fzf-native"
+         :host github
+         :files (:defaults "bin"))
+  :config
+  (fzf-native-load-dyn)
+  (setq fussy-score-fn 'fussy-fzf-native-score))
+
+(use-package fussy
+  :config
+  (setq fussy-score-ALL-fn 'fussy-fzf-score)
+  (setq fussy-filter-fn 'fussy-filter-orderless-flex)
+  (setq fussy-use-cache t)
+  (setq fussy-compare-same-score-fn 'fussy-histlen->strlen<)
+  (fussy-setup)
+  (fussy-eglot-setup))
+
+(advice-add 'corfu--capf-wrapper :before 'fussy-wipe-cache)
 
 (use-package consult
   :defer t
@@ -1557,6 +1578,7 @@
       font-lock-maximum-decoration            t
       font-lock-maximum-size                  t
       isearch-invisible                       t
+      isearch-lazy-count                      t
       search-invisible                        t
       frame-inhibit-implied-resize            t
       frame-title-format                      nil
