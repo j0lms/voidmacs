@@ -150,11 +150,13 @@
 #+end_src
 ** Scripts
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(defvar my-script-directory "~/.emacs.d/scripts/")
+(defvar my-lisp-directory "~/.emacs.d/lisp/")
+(defvar my-site-lisp-directory "~/.emacs.d/site-lisp/")
 
-(add-to-list 'load-path my-script-directory)
+(add-to-list 'load-path my-lisp-directory)
+(add-to-list 'load-path my-site-lisp-directory)
 
-(let ((scripts-dir my-script-directory))
+(let ((scripts-dir my-lisp-directory))
   (dolist (file (directory-files scripts-dir nil "^[^.]*\\.el$"))
     (let ((filename (file-name-sans-extension file)))
       (require (intern filename)))))
@@ -657,6 +659,35 @@
     :after (flycheck eglot)
     :config
     (global-flycheck-eglot-mode 1)))
+
+(use-package flycheck-posframe
+  :after flycheck
+  :config
+  (setq	flycheck-display-errors-delay 0.5
+	flycheck-idle-change-delay 0
+	flycheck-idle-buffer-switch-delay 0)
+
+  (flycheck-posframe-configure-pretty-defaults)
+
+  (set-face-attribute 'flycheck-posframe-background-face nil :background "#333333")
+  (set-face-attribute 'flycheck-posframe-border-face nil :foreground "#333333")
+
+  (setq flycheck-posframe-border-width 3)
+
+  (defun my-flycheck-posframe-monitor-post-command ()
+    "Hide flycheck-posframe if cursor position or buffer changes."
+    (when (not (flycheck-posframe-check-position))
+      (posframe-hide flycheck-posframe-buffer)))
+
+  (defun my-fix-flycheck-posframe-hide-immediately ()
+    "Toggle post-command-hook for immediate flycheck-posframe hiding."
+    (if flycheck-posframe-mode
+	(add-hook 'post-command-hook #'my-flycheck-posframe-monitor-post-command nil t)
+      (remove-hook 'post-command-hook #'my-flycheck-posframe-monitor-post-command t)))
+
+  (add-hook 'flycheck-posframe-mode-hook #'my-fix-flycheck-posframe-hide-immediately)
+  (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)
+  (setq flycheck-echo-errors-in-minibuffer nil))
 #+end_src
 ** Git
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -1617,7 +1648,7 @@
       frame-title-format                      '((:eval
                                                  (if (buffer-file-name)
                                                      (abbreviate-file-name (buffer-file-name))
-                                                     "%b"))))
+                                                   "%b"))))
 
 (setq-default bidi-display-reordering             nil
               cursor-in-non-selected-windows      nil
