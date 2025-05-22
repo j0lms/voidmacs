@@ -1253,6 +1253,26 @@
   (use-package fish-mode
     :defer t
     :mode "\\.fish\\'"))
+
+(use-package xterm-color
+  :commands (xterm-color-filter))
+
+(use-package capf-autosuggest
+   :hook
+   (eshell-mode . capf-autosuggest-mode))
+
+(with-eval-after-load 'capf-autosuggest
+  (define-key capf-autosuggest-active-mode-map (kbd "<right>") #'capf-autosuggest-accept))
+
+(with-eval-after-load 'eshell
+  (add-hook 'eshell-mode-hook
+            (lambda ()
+              (setenv "TERM" "xterm-256color")
+              (setq eshell-output-filter-functions
+                    (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+              (setq eshell-scroll-to-bottom-on-input t)
+              (define-key eshell-hist-mode-map (kbd "M-r") #'consult-history)))
+  (add-hook 'eshell-before-prompt-hook (setq xterm-color-preserve-properties t)))
 #+end_src
 ** Smart
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
