@@ -1262,6 +1262,11 @@
   (set-face-attribute 'diredfl-deletion-file-name nil :inherit 'default :foreground "red" :background 'unspecified)
   (set-face-attribute 'diredfl-compressed-file-name nil :inherit 'default :foreground "#929292" :background 'unspecified)
   (set-face-attribute 'diredfl-compressed-file-suffix nil :inherit 'default :foreground "#89b4fa" :background 'unspecified))
+
+(use-package dash
+  :defer t
+  :config
+  (global-dash-fontify-mode))
 #+end_src
 ** Projectile
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -1686,6 +1691,7 @@
 (set-buffer-file-coding-system 'utf-8)
 (add-hook 'init-hook #'delete-selection-mode)
 (add-hook 'init-hook #'save-place-mode)
+(add-hook 'prog-mode-hook 'auto-fill-mode)
 #+end_src
 ** Functions
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -2225,7 +2231,7 @@
     "c b" '(consult-buffer :wk "Consult buffer")
     "c c" '(consult-locate :wk "Consult locate (find files by name)")
     "c C" '(consult-compile-error :wk "Consult compile error")
-    "c d" '(consult-find :wk "Consult find (find files by content)")
+    "c d" '(consult-fd :wk "Consult find (find files by content)")
     "c f" '(consult-flycheck :wk "Consult flycheck error")
     "c g" '(consult-grep :wk "Consult grep")
     "c G" '(consult-git-grep :wk "Consult git grep")
