@@ -1700,6 +1700,15 @@
       (eval-region (min (point) (mark)) (max (point) (mark)))
     (pp-eval-last-sexp prefix)))
 
+(defun goto-first-reference ()
+  (interactive)
+  (eval
+   `(progn
+      (goto-char (point-min))
+      (search-forward-regexp
+       (rx symbol-start ,(thing-at-point 'symbol) symbol-end))
+      (beginning-of-thing 'symbol))))
+
 (defun my-occur-from-isearch ()
   (interactive)
   (let ((query (if isearch-regexp
@@ -1718,6 +1727,7 @@
 (define-key isearch-mode-map (kbd "C-c") 'my-consult-line-from-isearch)
 (define-key isearch-mode-map (kbd "C-o") 'my-occur-from-isearch)
 (define-key isearch-mode-map (kbd "C-d") 'isearch-forward-symbol-at-point)
+(define-key isearch-mode-map (kbd "C-q") 'isearch-query-replace-regexp)
 
 (defadvice isearch-mode 
     (around isearch-mode-default-string 
@@ -1742,26 +1752,69 @@
   "Select WINDOW for display-buffer-alist"
   (select-window window))
 
-(defun my-change-number-at-point (change increment)
-  (search-forward-regexp (rx digit))
+(defun my-change-number-at-point (change-function &optional arg)
+  "Helper function to change a number at point.
+CHANGE-FUNCTION is a function that takes the current number and
+an optional ARG (like a prefix argument or increment) and returns the new number.
+ARG is an optional argument passed to CHANGE-FUNCTION."
+  (interactive)
+  (search-forward-regexp (rx digit) nil t)
   (let ((number (number-at-point))
-        (point (point)))
+        (point-before-change (point)))
     (when number
-      (progn
-        (forward-word)
-        (search-backward (number-to-string number))
-        (replace-match (number-to-string (funcall change number increment)))
-        (goto-char (- point 1))))))
+      (let ((new-number (funcall change-function number arg)))
+        (if new-number
+            (progn
+              (delete-region (match-beginning 0) (match-end 0))
+              (insert (number-to-string new-number))
+              (goto-char point-before-change))
+          (message "No previous prime or overflow."))))))
+
+(defun my-increment-number-fn (n increment)
+  "Function to increment a number N by INCREMENT."
+  (+ n (or increment 1)))
+
+(defun my-decrement-number-fn (n decrement)
+  "Function to decrement a number N by DECREMENT."
+  (- n (or decrement 1)))
+
+(defun my-next-prime-fn (n &optional arg)
+  "Function to find the next prime from N.
+With ARG, finds the ARG-th next prime."
+  (let ((current-prime n))
+    (dotimes (_ (or arg 1))
+      (setq current-prime (next-prime current-prime)))
+    current-prime))
+
+(defun my-prev-prime-fn (n &optional arg)
+  "Function to find the previous prime from N.
+With ARG, finds the ARG-th previous prime."
+  (let ((current-prime n))
+    (dotimes (_ (or arg 1))
+      (setq current-prime (prev-prime current-prime)))
+    current-prime))
 
 (defun my-increment-number-at-point (&optional increment)
   "Increment number at point like vim's C-a"
   (interactive "p")
-  (my-change-number-at-point '+ (or increment 2)))
+  (my-change-number-at-point 'my-increment-number-fn increment))
 
 (defun my-decrement-number-at-point (&optional increment)
   "Decrement number at point like vim's C-x"
   (interactive "p")
-  (my-change-number-at-point '- (or increment 1)))
+  (my-change-number-at-point 'my-decrement-number-fn increment))
+
+(defun my-next-prime-number-at-point (&optional arg)
+  "Replace the number at point with the next prime number.
+With prefix ARG, find the ARG-th next prime."
+  (interactive "p")
+  (my-change-number-at-point 'my-next-prime-fn arg))
+
+(defun my-prev-prime-number-at-point (&optional arg)
+  "Replace the number at point with the previous prime number.
+With prefix ARG, find the ARG-th previous prime."
+  (interactive "p")
+  (my-change-number-at-point 'my-prev-prime-fn arg))
 
 (defun eval-and-replace ()
   "Replace the preceding sexp with its value."
@@ -1910,6 +1963,8 @@
 (defvar my-number-increment-repeat-cmds
   '(("a" . my-increment-number-at-point)
     ("x" . my-decrement-number-at-point)
+    ("A" . my-next-prime-number-at-point)
+    ("X" . my-prev-prime-number-at-point)
     ("q" . (lambda () (interactive) (message "Exited number increment/decrement mode."))))
   "Commands for repeatable number increment/decrement.")
 
@@ -2241,6 +2296,7 @@
 (global-set-key (kbd "M-s /") 'my-multi-occur-in-matching-buffers)
 (global-set-key (kbd "M-p") 'prev-symbol)
 (global-set-key (kbd "M-n") 'next-symbol)
+(global-set-key (kbd "M-*") 'goto-first-reference)
 #+end_src
 * GUI
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
