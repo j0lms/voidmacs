@@ -712,7 +712,6 @@
   :defer t)
 
 (use-package magit
-  :defer t
   :init
   (with-eval-after-load 'magit-mode
     (add-hook 'after-save-hook 'magit-after-save-refresh-status t))
@@ -994,20 +993,15 @@
 (add-hook 'org-mode-hook 'org-icons)
 (add-hook 'org-babel-after-execute-hook #'org-display-inline-images)
 
-(defun my-org-face-heights ()
-  "Apply custom height settings to Org mode outline levels."
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :height (cdr face))))
-
-(my-org-face-heights)
-(add-hook 'server-after-make-frame-hook #'my-org-face-heights)
+(dolist (face '((org-level-1 . 1.2)
+                (org-level-2 . 1.1)
+                (org-level-3 . 1.05)
+                (org-level-4 . 1.0)
+                (org-level-5 . 1.1)
+                (org-level-6 . 1.1)
+                (org-level-7 . 1.1)
+                (org-level-8 . 1.1)))
+  (set-face-attribute (car face) nil :height (cdr face)))
 
 (unless (is-wsl-linux)
   (defvar dw/org-roam-project-template
