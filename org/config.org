@@ -1560,7 +1560,6 @@
       make-backup-files                       nil
       backup-directory-alist                  '(("." . "~/.emacs.d/backup"))
       backward-delete-char-untabify-method    'hungry
-      electric-indent-chars                   (remq ?\n electric-indent-chars)
       sentence-end-double-space               nil
       recenter-positions                      '(top middle bottom)
       scroll-step                             1
