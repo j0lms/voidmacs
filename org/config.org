@@ -1236,7 +1236,6 @@
   :custom
   (persp-mode-prefix-key (kbd "C-c M-p"))
   :config
-  ;; Move the face customization here
   (set-face-attribute 'persp-selected-face nil :foreground "#c9d9ff" :weight 'bold)
   :init
   (persp-mode))
@@ -1289,8 +1288,20 @@
   (smartparens-global-mode +1))
 
 (with-eval-after-load 'smartparens
+  (defun sp-elisp-in-src-block-p (_id _action _context)
+    (when (org-in-src-block-p)
+      (let* ((el (org-element-at-point))
+             (lang (org-element-property :language el))
+             (mode (intern (concat (if (string= lang "elisp") "emacs-lisp" lang) "-mode"))))
+	(memq mode sp-lisp-modes))))
+
   (sp-local-pair '(emacs-lisp-mode) "'" "'" :when '(sp-in-string-p))
-  (sp-local-pair '(emacs-lisp-mode) "`" "`" :when '(sp-in-string-p)))
+  (sp-local-pair '(emacs-lisp-mode) "`" "`" :when '(sp-in-string-p))
+
+  (sp-local-pair 'org-mode "'" "'"
+		 :unless '(:add sp-elisp-in-src-block-p))
+  (sp-local-pair 'org-mode "`" "`"
+		 :unless '(:add sp-elisp-in-src-block-p)))
 
 (defun my-org-conditional-smartparens ()
   (let ((in-src-block (org-in-src-block-p t)))
