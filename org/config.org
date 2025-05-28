@@ -20,9 +20,9 @@
   - [[#docker][Docker]]
   - [[#eglot][Eglot]]
   - [[#elisp][Elisp]]
-  - [[#elpy][Elpy]]
   - [[#flycheck][Flycheck]]
   - [[#git][Git]]
+  - [[#go][Go]]
   - [[#highlight][Highlight]]
   - [[#hungry][Hungry]]
   - [[#icons][Icons]]
@@ -35,6 +35,8 @@
   - [[#origami][Origami]]
   - [[#pretty][Pretty]]
   - [[#projectile][Projectile]]
+  - [[#python][Python]]
+  - [[#rust][Rust]]
   - [[#shell][Shell]]
   - [[#smart][Smart]]
   - [[#snippets][Snippets]]
@@ -619,25 +621,6 @@
   :init
   (elmacro-mode))
 #+end_src
-** Elpy
-#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(when (require 'flycheck nil t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook #'flycheck-mode))
-
-(use-package elpy
-  :defer t
-  :init
-  (elpy-enable))
-
-(add-hook 'python-mode-hook
-          (lambda ()
-            (flymake-mode -1)))
-
-(use-package uv-mode
-  :defer t
-  :hook (python-mode . uv-mode-auto-activate-hook))
-#+end_src
 ** Flycheck
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package flycheck
@@ -689,6 +672,10 @@
   (add-hook 'flycheck-posframe-mode-hook #'my-fix-flycheck-posframe-hide-immediately)
   (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)
   (setq flycheck-echo-errors-in-minibuffer nil))
+
+(use-package flycheck-golangci-lint
+  :defer t
+  :hook (go-mode . flycheck-golangci-lint-setup))
 #+end_src
 ** Git
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -732,6 +719,16 @@
   (define-key ediff-mode-map "p" 'ediff-previous-difference))
 
 (add-hook 'ediff-mode-hook 'dt-ediff-hook)
+#+end_src
+** Go
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(use-package go-mode
+  :defer t
+  :mode "\\.go\\'"
+  :hook
+  (go-mode-hook
+   . (lambda ()
+       (add-hook 'before-save-hook #'gofmt-before-save t t))))
 #+end_src
 ** Highlight
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -1242,6 +1239,40 @@
 
 (use-package persp-projectile
   :defer t)
+#+end_src
+** Python
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook #'flycheck-mode))
+
+(use-package elpy
+  :defer t
+  :init
+  (elpy-enable))
+
+(add-hook 'python-mode-hook
+          (lambda ()
+            (flymake-mode -1)))
+
+(use-package uv-mode
+  :defer t
+  :hook (python-mode . uv-mode-auto-activate-hook))
+#+end_src
+** Rust
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(use-package rust-mode
+  :defer t
+  :custom
+  (setq rust-format-on-save t))
+
+(use-package flycheck-rust
+  :defer t)
+
+(with-eval-after-load 'rust-mode
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+  (add-hook 'rust-mode-hook
+          (lambda () (setq indent-tabs-mode nil))))
 #+end_src
 ** Shell
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
