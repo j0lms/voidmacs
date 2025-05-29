@@ -23,6 +23,7 @@
   - [[#flycheck][Flycheck]]
   - [[#git][Git]]
   - [[#go][Go]]
+  - [[#gpt][GPT]]
   - [[#highlight][Highlight]]
   - [[#hungry][Hungry]]
   - [[#icons][Icons]]
@@ -135,6 +136,8 @@
   (setq comp-native-comp-async-report-errors nil)
   (setq comp-native-comp-async-jobs 0)
   (setq native-comp-deferred-compilation nil))
+
+(setq org-modules-loaded t)
 
 (org-babel-load-file
  (expand-file-name
@@ -729,6 +732,18 @@
   (go-mode-hook
    . (lambda ()
        (add-hook 'before-save-hook #'gofmt-before-save t t))))
+#+end_src
+** GPT
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(use-package gptel
+  :defer t
+  :config
+  (setq
+   gptel-model 'llama3.2:latest
+   gptel-backend (gptel-make-ollama "Ollama"
+				    :host "localhost:11434"
+				    :stream t
+				    :models '(llama3.2:latest))))
 #+end_src
 ** Highlight
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -1608,6 +1623,7 @@
       inhibit-default-init                    t
       inhibit-startup-screen                  t
       inhibit-startup-echo-area-message       t
+      inhibit-compacting-font-caches          t
       font-lock-maximum-decoration            t
       font-lock-maximum-size                  t
       isearch-invisible                       t
@@ -1645,6 +1661,7 @@
       read-extended-command-predicate         #'command-completion-default-include-p
       minibuffer-prompt-properties            '(read-only t cursor-intangible t face minibuffer-prompt)
       text-mode-ispell-word-completion        nil
+      spell-checking-enable-by-default        nil
       frame-title-format                      '((:eval
                                                  (if (buffer-file-name)
                                                      (abbreviate-file-name (buffer-file-name))
@@ -2363,6 +2380,12 @@ With prefix ARG, find the ARG-th previous prime."
 	 (window-width . 0.4))
 
         ("\\*Backtrace\\*"
+         (display-buffer-in-side-window)
+	 (side . right)
+         (dedicated . t)
+	 (window-width . 0.4))
+
+	("\\*Diff\\*"
          (display-buffer-in-side-window)
 	 (side . right)
          (dedicated . t)
