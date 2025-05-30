@@ -735,15 +735,40 @@
 #+end_src
 ** GPT
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(use-package gptel
-  :defer t
-  :config
-  (setq
-   gptel-model 'llama3.2:latest
-   gptel-backend (gptel-make-ollama "Ollama"
-				    :host "localhost:11434"
-				    :stream t
-				    :models '(llama3.2:latest))))
+(when (executable-find "ollama")
+  (use-package gptel
+    :defer t
+    :bind
+    (("C-c G r" . #'gptel-rewrite)
+     ("C-c G a" . #'gptel-add)
+     ("C-c G s" . #'gptel-send))
+    :config
+    (setq
+     gptel-model 'llama3.2:latest
+     gptel-backend (gptel-make-ollama "Ollama"
+		     :host "localhost:11434"
+		     :stream t
+		     :models '(llama3.2:latest))))
+
+  (use-package minuet
+    :defer t
+    :bind
+    (("C-c M a" . #'minuet-accept-suggestion)
+     ("C-c M s" . #'minuet-show-suggestion)
+     ("C-c M d" . #'minuet-dismiss-suggestion))
+    :init
+    (add-hook 'prog-mode-hook #'minuet-auto-suggestion-mode)
+    :config
+    (setq minuet-provider 'openai-fim-compatible)
+    (setq minuet-n-completions 1)
+    (setq minuet-context-window 512)
+    (plist-put minuet-openai-fim-compatible-options :end-point "http://localhost:11434/v1/completions")
+    (plist-put minuet-openai-fim-compatible-options :name "Ollama")
+    (if (is-windows)
+	(plist-put minuet-openai-fim-compatible-options :api-key "APPDATA")
+      (plist-put minuet-openai-fim-compatible-options :api-key "TERM"))
+    (plist-put minuet-openai-fim-compatible-options :model "qwen2.5-coder:7b")
+    (minuet-set-optional-options minuet-openai-fim-compatible-options :max_tokens 64)))
 #+end_src
 ** Highlight
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
