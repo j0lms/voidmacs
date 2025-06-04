@@ -43,6 +43,7 @@
   - [[#snippets][Snippets]]
   - [[#tabs][Tabs]]
   - [[#treemacs][Treemacs]]
+  - [[#treesitter][Treesitter]]
   - [[#undo][Undo]]
   - [[#unicode][Unicode]]
   - [[#web][Web]]
@@ -80,7 +81,8 @@
 
 ;;; Code:
 
-(setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil
+      gc-cons-threshold most-positive-fixnum)
 
 ;; Local Variables:
 ;; no-byte-compile: t
@@ -586,7 +588,20 @@
 
   (setq eglot-autoshutdown t
         eglot-events-buffer-size 0
-        eglot-send-changes-idle-time 0.5))
+        eglot-send-changes-idle-time 0.5)
+
+  (with-eval-after-load 'eglot
+    (defun my/eglot-safe-fontify (orig-fun &rest args)
+      (condition-case err
+          (apply orig-fun args)
+	(error
+	 (message "Eglot fontification error: %s" (error-message-string err))
+	 "")))
+
+    (dolist (func '(eglot--format-markup
+                    eglot--hover-info
+                    markdown-fontify-code-block-natively))
+      (advice-add func :around #'my/eglot-safe-fontify))))
 #+end_src
 ** Elisp
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -744,7 +759,7 @@
      ("C-c G s" . #'gptel-send))
     :config
     (setq
-     gptel-model 'llama3.2:latest 
+     gptel-model 'llama3.2:latest
      gptel-backend (gptel-make-ollama "Ollama"
 		     :host "localhost:11434"
 		     :stream t
@@ -1514,6 +1529,18 @@
 
 (add-hook 'treemacs-mode-hook (lambda() (display-line-numbers-mode -1)))
 #+end_src
+** Treesitter
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(use-package tree-sitter
+  :defer t
+  :config
+  (setq treesit-font-lock-level 3)
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
+(use-package tree-sitter-langs
+  :after tree-sitter)
+#+end_src
 ** Undo
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package undo-tree
@@ -1652,7 +1679,6 @@
       save-interprogram-paste-before-kill     nil
       auto-mode-case-fold                     nil
       auto-window-vscroll                     nil
-      gc-cons-threshold                       most-positive-fixnum
       enable-recursive-minibuffers            t
       x-underline-at-descent-line             t
       dired-listing-switches                  "-alk"
@@ -2009,6 +2035,8 @@ With prefix ARG, find the ARG-th previous prime."
 (repeat-mode 1)
 (windmove-default-keybindings)
 (setq tab-always-indent 'complete)
+(define-key global-map [(insert)] nil)
+(define-key global-map [(control insert)] 'overwrite-mode)
 #+end_src
 ** General
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -2422,6 +2450,8 @@ With prefix ARG, find the ARG-th previous prime."
 #+end_src
 * Footer
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(add-hook 'elpaca-after-init-hook (lambda () (setq gc-cons-threshold (* 16 1024 1024))))
+
 (message "Bottom of config.el reached and evaluated.")
 
 (provide 'config)
