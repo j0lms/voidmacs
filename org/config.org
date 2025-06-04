@@ -1150,6 +1150,23 @@
     (org-roam-db-autosync-mode)
 
     (my/org-roam-refresh-agenda-list)))
+
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-classes
+               '("org-plain-latex"
+     "\\documentclass{article}
+           [NO-DEFAULT-PACKAGES]
+           [PACKAGES]
+           [EXTRA]"
+     ("\\section{%s}" . "\\section*{%s}")
+     ("\\subsection{%s}" . "\\subsection*{%s}")
+     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+     ("\\paragraph{%s}" . "\\paragraph*{%s}")
+     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+
+(setq org-latex-listings 't
+      org-latex-src-block-backend 'listings
+      org-format-latex-options (plist-put org-format-latex-options :scale 1.35))
 #+end_src
 ** Origami
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
