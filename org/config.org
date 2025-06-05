@@ -1166,6 +1166,7 @@
 
 (setq org-latex-listings 't
       org-latex-src-block-backend 'listings
+      org-preview-latex-default-process 'dvisvgm
       org-format-latex-options (plist-put org-format-latex-options :scale 1.35))
 #+end_src
 ** Origami
