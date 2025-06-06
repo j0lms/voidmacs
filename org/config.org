@@ -32,6 +32,7 @@
   - [[#markdown][Markdown]]
   - [[#minimap][Minimap]]
   - [[#modeline][Modeline]]
+  - [[#nov][Nov]]
   - [[#org][Org]]
   - [[#origami][Origami]]
   - [[#pretty][Pretty]]
@@ -928,6 +929,17 @@
 	  doom-modeline-icon nil
 	  doom-modeline-vcs-max-length 10)))
 #+end_src
+** Nov
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(use-package nov
+  :defer t
+  :custom
+  (nov-text-width 80)
+  :mode
+  ("\\.epub\\'" . nov-mode)
+  :commands
+  (nov-mode))
+#+end_src
 ** Org
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package org-bullets
@@ -1704,6 +1716,7 @@
       scroll-margin                           0
       scroll-conservatively                   100000
       scroll-preserve-screen-position         1
+      doc-view-resolution                     600
       use-file-dialog                         nil
       use-dialog-box                          nil
       pop-up-windows                          nil
