@@ -2158,19 +2158,19 @@ With prefix ARG, find the ARG-th previous prime."
   (casual-ibuffer-tmenu))
 
 (defun my-dired-with-tmenu ()
-  "Open Ibuffer and then casual-ibuffer-tmenu."
+  "Open Dired in ~/.emacs.d and then casual-dired-tmenu."
   (interactive)
   (dired user-emacs-directory)
   (casual-dired-tmenu))
 
 (defun my-dired-jump-with-tmenu ()
-  "Open Ibuffer and then casual-ibuffer-tmenu."
+  "Open Dired in current dir and then casual-dired-tmenu."
   (interactive)
   (dired-jump)
   (casual-dired-tmenu))
 
 (defun my-calc-with-tmenu ()
-  "Open Ibuffer and then casual-ibuffer-tmenu."
+  "Open Calc and then casual-calc-tmenu."
   (interactive)
   (calc)
   (casual-calc-tmenu))
