@@ -1211,9 +1211,29 @@
   :hook ((prog-mode . rainbow-delimiters-mode)))
 
 (use-package eshell-syntax-highlighting
-  :after eshell-mode
+  :after eshell
   :config
-  (eshell-syntax-highlighting-global-mode +1))
+  (eshell-syntax-highlighting-global-mode +1)
+  (custom-theme-set-faces
+   'user
+   '(eshell-syntax-highlighting-shell-command-face
+     ((t (:foreground "#A9E34B" :weight bold))))
+   '(eshell-syntax-highlighting-invalid-face
+     ((t (:foreground "#dc322f" :weight bold))))
+   '(eshell-syntax-highlighting-option-face
+     ((t (:foreground "#cb4b16"))))
+   '(eshell-syntax-highlighting-string-face
+     ((t (:foreground "#2aa198"))))
+   '(eshell-syntax-highlighting-directory-face
+     ((t (:foreground "#268bd2" :underline t))))
+   '(eshell-syntax-highlighting-file-arg-face
+     ((t (:foreground "#6c71c4" :underline t))))
+   '(eshell-syntax-highlighting-envvar-face
+     ((t (:foreground "#b58900"))))
+   '(eshell-syntax-highlighting-delimiter-face
+     ((t (:foreground "#93a1a1" :weight bold))))
+   '(eshell-syntax-highlighting-comment-face
+     ((t (:foreground "#586e75" :slant italic))))))
 
 (use-package diredfl
   :defer t
@@ -1345,24 +1365,46 @@
     :mode "\\.fish\\'"))
 
 (use-package xterm-color
-  :commands (xterm-color-filter))
+  :commands (xterm-color-filter)
+  :init
+  (setq xterm-color-preserve-properties t)
+  (setq xterm-color-handle-independently t))
 
 (use-package capf-autosuggest
-   :hook
-   (eshell-mode . capf-autosuggest-mode))
+  :hook
+  (eshell-mode . capf-autosuggest-mode))
 
 (with-eval-after-load 'capf-autosuggest
   (define-key capf-autosuggest-active-mode-map (kbd "<right>") #'capf-autosuggest-accept))
 
+(use-package eshell-z
+  :after eshell)
+
 (with-eval-after-load 'eshell
+  (set-face-attribute 'ansi-color-blue nil :foreground "#61afef")
   (add-hook 'eshell-mode-hook
             (lambda ()
               (setenv "TERM" "xterm-256color")
               (setq eshell-output-filter-functions
-                    (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+                    (cl-delete-if
+                     (lambda (f) (and (listp f) (eq (car f) 'lambda) (string-match-p "xterm-color-filter" (format "%S" f))))
+                     eshell-output-filter-functions))
               (setq eshell-scroll-to-bottom-on-input t)
               (define-key eshell-hist-mode-map (kbd "M-r") #'consult-history)))
-  (add-hook 'eshell-before-prompt-hook (setq xterm-color-preserve-properties t)))
+  (setq eshell-prompt-function
+	(lambda ()
+	  (concat
+           (propertize "+-[" 'face `(:foreground "#2aa198"))
+           (propertize (user-login-name) 'face `(:foreground "#dc322f"))
+           (propertize "@" 'face `(:foreground "#2aa198"))
+           (propertize (system-name) 'face `(:foreground "#268bd2"))
+           (propertize "]--[" 'face `(:foreground "#2aa198"))
+           (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "#b58900"))
+           (propertize "]--[" 'face `(:foreground "#2aa198"))
+           (propertize (concat (eshell/pwd)) 'face `(:foreground "#93a1a1"))
+           (propertize "]\n" 'face `(:foreground "#2aa198"))
+           (propertize "+->" 'face `(:foreground "#2aa198"))
+           (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "#2aa198"))))))
 #+end_src
 ** Smart
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
