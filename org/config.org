@@ -39,6 +39,7 @@
   - [[#projectile][Projectile]]
   - [[#python][Python]]
   - [[#rust][Rust]]
+  - [[#rss][RSS]]
   - [[#shell][Shell]]
   - [[#smart][Smart]]
   - [[#snippets][Snippets]]
@@ -119,6 +120,13 @@
   (and (string= linuxp "yes")
        (or (getenv "WSL_DISTRO_NAME")
            (getenv "WSL_INTEROP"))))
+
+(defun is-termux-android ()
+  "Return t if running in a Termux Android environment."
+  (and (string= androidp "yes")
+       (or (getenv "TERMUX_VERSION")
+           (getenv "PREFIX")
+           (file-exists-p "/data/data/com.termux/files/usr"))))
 
 (defun is-android ()
   "Return t if running on Android."
@@ -578,6 +586,9 @@
 (use-package dockerfile-mode
   :defer t
   :mode ("Dockerfile\\'" . dockerfile-mode))
+
+(use-package docker
+  :defer t)
 #+end_src
 ** Eglot
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -748,6 +759,9 @@
   (go-mode-hook
    . (lambda ()
        (add-hook 'before-save-hook #'gofmt-before-save t t))))
+
+(use-package ob-go
+  :if (executable-find "go"))
 #+end_src
 ** GPT
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -988,7 +1002,8 @@
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((emacs-lisp . t)
-   (python . t)))
+   (python . t)
+   (latex . t)))
 
 (add-hook 'after-save-hook
           (lambda ()
@@ -996,7 +1011,7 @@
               (org-babel-tangle))))
 
 (defun my-org-confirm-babel-evaluate (lang body)
-  (not (member lang '("emacs-lisp" "python" "powershell"))))
+  (not (member lang '("emacs-lisp" "python" "powershell" "latex" "go"))))
 (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
 
 (unless (is-android)
@@ -1279,6 +1294,13 @@
   (set-face-attribute 'diredfl-compressed-file-name nil :inherit 'default :foreground "#929292" :background 'unspecified)
   (set-face-attribute 'diredfl-compressed-file-suffix nil :inherit 'default :foreground "#89b4fa" :background 'unspecified))
 
+(use-package dired-preview
+  :defer t
+  :init
+  (dired-preview-global-mode 1)
+  :config
+  (setq dired-preview-delay 0.3))
+
 (use-package dash
   :defer t
   :config
@@ -1358,6 +1380,23 @@
   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
   (add-hook 'rust-mode-hook
           (lambda () (setq indent-tabs-mode nil))))
+#+end_src
+** RSS
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(use-package elfeed
+  :defer t)
+
+(use-package elfeed-org
+  :after elfeed
+  :config
+  (setq rmh-elfeed-org-files (list "~/.emacs.d/org/elfeed.org")))
+
+(use-package elfeed-goodies
+  :after elfeed
+  :init
+  (elfeed-goodies/setup)
+  :config
+  (setq elfeed-goodies/entry-pane-size 0.5))
 #+end_src
 ** Shell
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -1669,6 +1708,9 @@
   :mode ("\\.js$" . js2-mode)
   :init
   (setq js2-strict-missing-semi-warning nil))
+
+(use-package htmlize
+  :defer t)
 #+end_src
 ** Which
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -2261,7 +2303,8 @@ With prefix ARG, find the ARG-th previous prime."
     "d a" '(dashboard-open :wk "Open dashboard")
     "d d" '(dired :wk "Open dired")
     "d j" '(my-dired-jump-with-tmenu :wk "Dired jump to current with transient menu")
-    "d r" '(deadgrep :wk "Ripgrep text search"))
+    "d r" '(deadgrep :wk "Ripgrep text search")
+    "d o" '(docker :wk "Docker actions"))
   (leader-key
     "o" '(:ignore t :wk "org")
     "o a" '(org-agenda :wk "Org agenda")
