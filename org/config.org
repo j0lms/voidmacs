@@ -29,6 +29,7 @@
   - [[#icons][Icons]]
   - [[#indent][Indent]]
   - [[#ligatures][Ligatures]]
+  - [[#lilypond][Lilypond]]
   - [[#markdown][Markdown]]
   - [[#minimap][Minimap]]
   - [[#modeline][Modeline]]
@@ -886,6 +887,16 @@
                                "<+>" "<=" "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<"
                                "<~" "<~~" "</" "</>" "~@" "~-" "~>" "~~" "~~>" "%%"))
   (global-ligature-mode 't))
+#+end_src
+** Lilypond
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(use-package lilypond-mode
+  :ensure (lilypond-mode :host gitlab
+			 :repo "lilypond/lilypond"
+			 :files ("elisp/*.el" "elisp/out/lilypond-words.el")
+			 :pre-build ("python" "scripts/build/lilypond-words.py" "--el" "--dir=elisp/"))
+  :mode ("\\.ly$" . LilyPond-mode)
+  :commands (LilyPond-mode))
 #+end_src
 ** Markdown
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
