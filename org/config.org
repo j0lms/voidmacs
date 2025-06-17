@@ -1389,7 +1389,8 @@
 (use-package elfeed-org
   :after elfeed
   :config
-  (setq rmh-elfeed-org-files (list "~/.emacs.d/org/elfeed.org")))
+  (setq rmh-elfeed-org-files (list "~/.emacs.d/org/elfeed.org"))
+  (elfeed-org))
 
 (use-package elfeed-goodies
   :after elfeed
