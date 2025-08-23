@@ -661,7 +661,8 @@
   (setq  flycheck-python-flake8-executable "python"
 	 flycheck-python-pycompile-executable "python"
 	 flycheck-python-ruff-executable "python"
-	 flycheck-python-pyright-executable "python"))
+	 flycheck-python-pyright-executable "python"
+	 flycheck-json-python-json-executable "python"))
 
 (defun flycheck-parse-output (output checker buffer)
   (let ((sanitized-output
