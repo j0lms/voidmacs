@@ -148,6 +148,11 @@
   (setq comp-native-comp-async-jobs 0)
   (setq native-comp-deferred-compilation nil))
 
+(require 'server)
+
+(when (server-running-p)
+  (server-force-delete))
+
 (setq org-modules-loaded t)
 
 (org-babel-load-file
