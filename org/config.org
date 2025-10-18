@@ -44,6 +44,7 @@
   - [[#smart][Smart]]
   - [[#snippets][Snippets]]
   - [[#tabs][Tabs]]
+  - [[#tidal][Tidal]]
   - [[#treemacs][Treemacs]]
   - [[#treesitter][Treesitter]]
   - [[#undo][Undo]]
@@ -1558,6 +1559,14 @@
     :bind
     ("C-<prior>" . centaur-tabs-backward)
     ("C-<next>" . centaur-tabs-forward)))
+#+end_src
+** Tidal
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(unless (is-android)
+  (use-package haskell-mode
+    :defer t)
+  (use-package tidal
+    :after haskell-mode))
 #+end_src
 ** Treemacs
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
