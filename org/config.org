@@ -29,6 +29,7 @@
   - [[#icons][Icons]]
   - [[#indent][Indent]]
   - [[#ligatures][Ligatures]]
+  - [[#lilypond][LilyPond]]
   - [[#markdown][Markdown]]
   - [[#minimap][Minimap]]
   - [[#modeline][Modeline]]
@@ -893,6 +894,18 @@
                                "<+>" "<=" "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<"
                                "<~" "<~~" "</" "</>" "~@" "~-" "~>" "~~" "~~>" "%%"))
   (global-ligature-mode 't))
+#+end_src
+** LilyPond
+#+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
+(unless (is-android)
+  (use-package lilypond-mode
+    :ensure (lilypond-mode
+	     :type git
+	     :host github
+	     :repo "j0lms/lilypond-mode"
+             :files ("*.el"))
+    :mode ("\\.ly$" . lilypond-mode)
+    :commands (lilypond-mode)))
 #+end_src
 ** Markdown
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
