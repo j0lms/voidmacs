@@ -1580,6 +1580,10 @@
     :defer t)
   (use-package tidal
     :after haskell-mode))
+
+(custom-set-faces
+ '(pulse-highlight-face ((t (:background "#2aa198" :foreground "#c6c6c6"))))
+ '(pulse-highlight-start-face ((t (:background "#89b4fa" :foreground "#000000")))))
 #+end_src
 ** Treemacs
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
