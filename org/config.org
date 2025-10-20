@@ -1023,7 +1023,8 @@
  'org-babel-load-languages
  '((emacs-lisp . t)
    (python . t)
-   (latex . t)))
+   (latex . t)
+   (haskell . t)))
 
 (add-hook 'after-save-hook
           (lambda ()
