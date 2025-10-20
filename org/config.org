@@ -1579,7 +1579,9 @@
   (use-package haskell-mode
     :defer t)
   (use-package tidal
-    :after haskell-mode))
+    :after haskell-mode
+    :config
+    (define-key tidal-mode-map (kbd "C-c .") 'tidal-run-line)))
 
 (custom-set-faces
  '(pulse-highlight-face ((t (:background "#2aa198" :foreground "#c6c6c6"))))
