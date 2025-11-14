@@ -657,6 +657,11 @@
   :defer t
   :init
   (elmacro-mode))
+
+(use-package elisp-autofmt
+  :defer t
+  :commands (elisp-autofmt-mode elisp-autofmt-buffer)
+  :hook (emacs-lisp-mode . elisp-autofmt-mode))
 #+end_src
 ** Flycheck
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -1582,7 +1587,7 @@
   (use-package tidal
     :after haskell-mode
     :config
-    (define-key tidal-mode-map (kbd "C-c .") 'tidal-run-line)))
+    (define-key tidal-mode-map (kbd "C-c C-.") 'tidal-run-line)))
 
 (custom-set-faces
  '(pulse-highlight-face ((t (:background "#2aa198" :foreground "#c6c6c6"))))
@@ -1747,6 +1752,27 @@
 
 (use-package htmlize
   :defer t)
+
+(when (executable-find "deno")
+  (use-package websocket)
+
+  (use-package deno-bridge
+    :ensure (deno-bridge
+	     :type git
+	     :host github
+	     :repo "manateelazycat/deno-bridge"))
+
+  (use-package emmet2-mode
+    :ensure (emmet2-mode
+	     :type git
+	     :host github
+	     :repo "p233/emmet2-mode"
+	     :files (:defaults "*.ts" "src" "data"))
+    :after deno-bridge
+    :hook ((web-mode css-mode) . emmet2-mode)
+    :config
+    (unbind-key "C-j" emmet2-mode-map)
+    (define-key emmet2-mode-map (kbd "C-c C-.") 'emmet2-expand)))
 #+end_src
 ** Which
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
