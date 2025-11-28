@@ -714,7 +714,10 @@
 
   (add-hook 'flycheck-posframe-mode-hook #'my-fix-flycheck-posframe-hide-immediately)
   (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)
-  (setq flycheck-echo-errors-in-minibuffer nil))
+  (setq flycheck-echo-errors-in-minibuffer nil
+	flycheck-posframe-warning-prefix "! "
+	flycheck-posframe-error-prefix "➤ "
+	flycheck-posframe-info-prefix "? "))
 
 (use-package flycheck-golangci-lint
   :defer t
@@ -1587,7 +1590,14 @@
   (use-package tidal
     :after haskell-mode
     :config
-    (define-key tidal-mode-map (kbd "C-c C-.") 'tidal-run-line)))
+    (define-key tidal-mode-map (kbd "C-c C-.") 'tidal-run-line))
+  (use-package tidal-highlight
+    :ensure (tidal-highlight
+	     :host github
+	     :repo "j0lms/tidal-highlight"
+	     :files ("*.el" "bin"))
+    :config
+    (setq tidal-highlight-udp-port 6012)))
 
 (custom-set-faces
  '(pulse-highlight-face ((t (:background "#2aa198" :foreground "#c6c6c6"))))
@@ -1858,6 +1868,7 @@
       auto-window-vscroll                     nil
       enable-recursive-minibuffers            t
       x-underline-at-descent-line             t
+      pulse-flag                              t
       dired-listing-switches                  "-alk"
       large-file-warning-threshold            (* 15 1024 1024)
       byte-compile-warnings                   '(cl-functions)
