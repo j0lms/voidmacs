@@ -602,9 +602,11 @@
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (when (emacs-version-greater-or-equal 29 1)
   (setq eglot-server-programs
-        '((python-mode . ("python" "-m" "pylsp"))))
+        '((python-mode . ("python" "-m" "pylsp"))
+	  (rust-mode . ("rust-analyzer"))))
 
   (add-hook 'python-mode-hook 'eglot-ensure)
+  (add-hook 'rust-mode-hook 'eglot-ensure)
 
   (setq eglot-autoshutdown t
         eglot-events-buffer-size 0
@@ -1403,7 +1405,7 @@
 (use-package rust-mode
   :defer t
   :custom
-  (setq rust-format-on-save t))
+  (setq rust-format-on-save nil))
 
 (use-package flycheck-rust
   :defer t)
