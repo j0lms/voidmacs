@@ -237,7 +237,7 @@
         (default-font-family (my-find-available-font '("FiraCode Nerd Font Mono" "DejaVu Sans Mono" "Monospace" "Courier New")))
         (variable-pitch-family (my-find-available-font '("Inter" "Roboto" "Segoe UI" "Helvetica" "DejaVu Sans" "Sans" "Arial")))
         (comment-keyword-family (my-find-available-font '("RobotoMono Nerd Font" "DejaVu Sans Mono" "Monospace" "Courier New")))
-        (symbol-font-family (my-find-available-font '("JetBrainsMono NF" "Symbola" "Noto Sans Symbols2" "Monospace")))
+        (symbol-font-family (my-find-available-font '("JetBrainsMono NF" "Symbola" "Noto Sans Symbols" "Monospace")))
         (modeline-font-family (my-find-available-font '("FiraCode Nerd Font Mono" "DejaVu Sans Mono" "Monospace" "Courier New"))))
 
     (set-face-attribute 'default nil
@@ -298,8 +298,9 @@
                         :weight 'bold)
 
     (when (fboundp 'set-fontset-font)
-      (set-fontset-font t #x2227 symbol-font-family nil 'prepend)    ;; (logical and)
-      (set-fontset-font t #x2228 symbol-font-family nil 'prepend)))) ;; (logical or)
+      (set-fontset-font t #x2227 symbol-font-family nil 'prepend)           ;; (logical and)
+      (set-fontset-font t #x2228 symbol-font-family nil 'prepend)           ;; (logical or)
+      (set-fontset-font t #x27FC default-font-family nil 'prepend))))       ;; (long right arrow from bar)
 
 (defvar my-original-face-heights nil
   "Alist of cons cells (face . height) storing *unscaled* face heights..")
@@ -1242,6 +1243,8 @@
   (global-pretty-mode t)
   (add-hook 'my-pretty-language-hook 'turn-on-pretty-mode)
   :config
+  (pretty-deactivate-patterns
+   '(:== :neq :leq :geq :wedge :vee :dots))
   (let ((symbols-to-remove '("->" "map" "/=" "!=" "=="
 			     "<=" ">=" "&&" "||" "...")))
     (setq prettify-symbols-alist
@@ -1816,8 +1819,8 @@
 * Misc
 ** Variables
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
-(setq user-full-name                          "Jorge Olmos"
-      user-mail-address                       "j0lms@outlook.es"
+(setq user-full-name                          "John Doe"
+      user-mail-address                       "johndoe@email.com"
       buffer-move-stay-after-swap             t
       python-shell-interpreter                "python"
       initial-buffer-choice                   (lambda () (get-buffer-create "*dashboard*") (dashboard-open))
