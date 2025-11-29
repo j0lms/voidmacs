@@ -2016,8 +2016,8 @@
 (define-key isearch-mode-map (kbd "C-d") 'isearch-forward-symbol-at-point)
 (define-key isearch-mode-map (kbd "C-q") 'isearch-query-replace-regexp)
 
-(defadvice isearch-mode 
-    (around isearch-mode-default-string 
+(defadvice isearch-mode
+    (around isearch-mode-default-string
 	    (forward &optional regexp op-fun recursive-edit word-p) activate)
   (if (and transient-mark-mode mark-active (not (eq (mark) (point))))
       (progn
@@ -2202,6 +2202,44 @@ With prefix ARG, find the ARG-th previous prime."
   (org-edit-special)
   (indent-region (point-min) (point-max))
   (org-edit-src-exit))
+
+(defun org-split-src-block ()
+  "Split the current source block at point into two source blocks."
+  (interactive)
+  (save-excursion
+    (unless (org-in-src-block-p)
+      (error "Not inside a source block"))
+
+    (let ((current-line (string-trim (buffer-substring (point-at-bol) (point-at-eol))))
+          (language (org-element-property :language (org-element-context)))
+          (headers (org-element-property :parameters (org-element-context))))
+      (beginning-of-line)
+      (kill-whole-line)
+      (insert "#+end_src\n")
+      (insert "\n")
+      (insert "#+begin_src " language "\n")
+      (insert current-line))))
+
+(defun org-merge-src-blocks ()
+  "Merge the source block above point with the source block below point."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (let ((has-block-above (save-excursion
+                             (re-search-backward "^#\\+end_src" nil t)))
+          (has-block-below (save-excursion
+                             (re-search-forward "^#\\+begin_src" nil t))))
+
+      (unless (and has-block-above has-block-below)
+        (error "Not positioned between two source blocks"))
+      (re-search-backward "^#\\+end_src")
+      (kill-whole-line)
+      (when (looking-at "^[ \t]*$")
+        (kill-whole-line))
+      (re-search-forward "^#\\+begin_src")
+      (kill-whole-line)
+      (unless (looking-at-p "^[ \t]*$")
+        (insert "\n")))))
 
 (defun insert-deadline ()
   (interactive)
