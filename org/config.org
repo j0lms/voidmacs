@@ -1247,7 +1247,6 @@
   :config
   (pretty-deactivate-patterns
    '(:== :neq :leq :geq :wedge :vee :dots :circ))
-
   (let ((symbols-to-remove '("->" "map" "/=" "!=" "=="
 			     "<=" ">=" "&&" "||" "...")))
     (setq prettify-symbols-alist
