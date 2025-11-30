@@ -300,7 +300,7 @@
     (when (fboundp 'set-fontset-font)
       (set-fontset-font t #x2227 symbol-font-family nil 'prepend)           ;; (logical and)
       (set-fontset-font t #x2228 symbol-font-family nil 'prepend)           ;; (logical or)
-      (set-fontset-font t #x27FC default-font-family nil 'prepend))))       ;; (long right arrow from bar)
+      (set-fontset-font t #x27FC "Segoe UI Symbol" nil 'prepend))))         ;; (long right arrow from bar)
 
 (defvar my-original-face-heights nil
   "Alist of cons cells (face . height) storing *unscaled* face heights..")
