@@ -1421,6 +1421,7 @@
   :config
   (setq rustic-format-on-save nil
 	rustic-lsp-client 'eglot)
+  (push 'rustic-clippy flycheck-checkers)
   :custom
   (setq rustic-analyzer-command '("rust-analyzer"))
   (rustic-cargo-use-last-stored-arguments t))
