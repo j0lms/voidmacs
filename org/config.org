@@ -1246,14 +1246,15 @@
   (add-hook 'my-pretty-language-hook 'turn-on-pretty-mode)
   :config
   (pretty-deactivate-patterns
-   '(:== :neq :leq :geq :wedge :vee :dots))
+   '(:== :neq :leq :geq :wedge :vee :dots :circ))
+
   (let ((symbols-to-remove '("->" "map" "/=" "!=" "=="
 			     "<=" ">=" "&&" "||" "...")))
     (setq prettify-symbols-alist
           (dolist (symbol symbols-to-remove prettify-symbols-alist)
             (setq prettify-symbols-alist
                   (delq (assoc symbol prettify-symbols-alist)
-                        prettify-symbols-alist))))))
+			prettify-symbols-alist))))))
 
 (unless (is-android)
   (use-package ws-butler
