@@ -1414,6 +1414,16 @@
   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
   (add-hook 'rust-mode-hook
           (lambda () (setq indent-tabs-mode nil))))
+
+(use-package rustic
+  :defer t
+  :after (rust-mode)
+  :config
+  (setq rustic-format-on-save nil
+	rustic-lsp-client 'eglot)
+  :custom
+  (setq rustic-analyzer-command '("rust-analyzer"))
+  (rustic-cargo-use-last-stored-arguments t))
 #+end_src
 ** RSS
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
