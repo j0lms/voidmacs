@@ -661,10 +661,11 @@
   :init
   (elmacro-mode))
 
-(use-package elisp-autofmt
-  :defer t
-  :commands (elisp-autofmt-mode elisp-autofmt-buffer)
-  :hook (emacs-lisp-mode . elisp-autofmt-mode))
+(when (emacs-version-greater-or-equal 29 1)
+  (use-package elisp-autofmt
+    :defer t
+    :commands (elisp-autofmt-mode elisp-autofmt-buffer)
+    :hook (emacs-lisp-mode . elisp-autofmt-mode)))
 #+end_src
 ** Flycheck
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
@@ -744,8 +745,9 @@
 (use-package transient
   :defer t)
 
-(use-package casual
-  :defer t)
+(when (emacs-version-greater-or-equal 29 1)
+  (use-package casual
+    :defer t))
 
 (use-package magit
   :defer t
