@@ -607,7 +607,8 @@
 	  (go-mode . ("gopls"))
 	  (c-mode . ("ccls"))
 	  (c++-mode . ("ccls"))
-	  (js2-mode . ("typescript-language-server" "--stdio"))))
+	  (js2-mode . ("typescript-language-server" "--stdio"))
+	  (typescript-mode . ("typescript-language-server" "--stdio"))))
 
   (add-hook 'python-mode-hook 'eglot-ensure)
   (add-hook 'rust-mode-hook 'eglot-ensure)
