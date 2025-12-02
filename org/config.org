@@ -1765,7 +1765,8 @@
 (use-package web-mode
   :defer t
   :mode
-  (("\\.jsx\\'" . web-mode)
+  (("\\.html?\\'" . web-mode)
+   ("\\.jsx\\'" . web-mode)
    ("\\.tsx\\'" . web-mode)
    ("\\.phtml\\'" . web-mode)
    ("\\.php\\'" . web-mode)
