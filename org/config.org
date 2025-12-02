@@ -616,6 +616,7 @@
   (add-hook 'c-mode-hook 'eglot-ensure)
   (add-hook 'c++-mode-hook 'eglot-ensure)
   (add-hook 'js2-mode-hook 'eglot-ensure)
+  (add-hook 'typescript-mode-hook 'eglot-ensure)
 
   (setq eglot-autoshutdown t
         eglot-events-buffer-size 0
