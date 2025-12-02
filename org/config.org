@@ -604,11 +604,15 @@
   (setq eglot-server-programs
         '((python-mode . ("python" "-m" "pylsp"))
 	  (rust-mode . ("rust-analyzer"))
-	  (go-mode . ("gopls"))))
+	  (go-mode . ("gopls"))
+	  (c-mode . ("ccls"))
+	  (c++-mode . ("ccls"))))
 
   (add-hook 'python-mode-hook 'eglot-ensure)
   (add-hook 'rust-mode-hook 'eglot-ensure)
   (add-hook 'go-mode-hook 'eglot-ensure)
+  (add-hook 'c-mode-hook 'eglot-ensure)
+  (add-hook 'c++-mode-hook 'eglot-ensure)
 
   (setq eglot-autoshutdown t
         eglot-events-buffer-size 0
