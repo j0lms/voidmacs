@@ -606,13 +606,15 @@
 	  (rust-mode . ("rust-analyzer"))
 	  (go-mode . ("gopls"))
 	  (c-mode . ("ccls"))
-	  (c++-mode . ("ccls"))))
+	  (c++-mode . ("ccls"))
+	  (js2-mode . ("typescript-language-server" "--stdio"))))
 
   (add-hook 'python-mode-hook 'eglot-ensure)
   (add-hook 'rust-mode-hook 'eglot-ensure)
   (add-hook 'go-mode-hook 'eglot-ensure)
   (add-hook 'c-mode-hook 'eglot-ensure)
   (add-hook 'c++-mode-hook 'eglot-ensure)
+  (add-hook 'js2-mode-hook 'eglot-ensure)
 
   (setq eglot-autoshutdown t
         eglot-events-buffer-size 0
@@ -680,11 +682,12 @@
   :diminish
   :init
   (global-flycheck-mode)
-  (setq  flycheck-python-flake8-executable "python"
-	 flycheck-python-pycompile-executable "python"
-	 flycheck-python-ruff-executable "python"
-	 flycheck-python-pyright-executable "python"
-	 flycheck-json-python-json-executable "python"))
+  (setq flycheck-python-flake8-executable "python"
+	flycheck-python-pycompile-executable "python"
+	flycheck-python-ruff-executable "python"
+	flycheck-python-pyright-executable "python"
+	flycheck-json-python-json-executable "python")
+  (setq-default flycheck-disabled-checkers '(c/c++-cppcheck)))
 
 (defun flycheck-parse-output (output checker buffer)
   (let ((sanitized-output
@@ -1254,7 +1257,7 @@
   (add-hook 'my-pretty-language-hook 'turn-on-pretty-mode)
   :config
   (pretty-deactivate-patterns
-   '(:== :neq :leq :geq :wedge :vee :dots :circ))
+   '(:== :neq :leq :geq :wedge :vee :dots :circ :===))
   (let ((symbols-to-remove '("->" "map" "/=" "!=" "=="
 			     "<=" ">=" "&&" "||" "...")))
     (setq prettify-symbols-alist
