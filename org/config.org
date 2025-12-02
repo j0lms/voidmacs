@@ -1809,6 +1809,10 @@
     :config
     (unbind-key "C-j" emmet2-mode-map)
     (define-key emmet2-mode-map (kbd "C-c C-.") 'emmet2-expand)))
+
+(use-package typescript-mode
+  :defer t
+  :mode "\\.ts\\'")
 #+end_src
 ** Which
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
