@@ -1722,8 +1722,6 @@
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
 (use-package tree-sitter
   :defer t
-  :init
-  (global-tree-sitter-mode 1)
   :config
   (setq treesit-font-lock-level 3)
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
