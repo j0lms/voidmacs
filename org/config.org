@@ -2287,6 +2287,29 @@ sets a transient keymap for repeated actions from ALIST."
   (interactive)
   (format-date "[%Y-%m-%d %A %H:%M:%S]"))
 
+(defun move-line (n)
+  "Move the current line up or down by N lines."
+  (interactive "p")
+  (setq col (current-column))
+  (beginning-of-line) (setq start (point))
+  (end-of-line) (forward-char) (setq end (point))
+  (let ((line-text (delete-and-extract-region start end)))
+    (forward-line n)
+    (insert line-text)
+    ;; restore point to original column in moved line
+    (forward-line -1)
+    (forward-char col)))
+
+(defun move-line-up (n)
+  "Move the current line up by N lines."
+  (interactive "p")
+  (move-line (if (null n) -1 (- n))))
+
+(defun move-line-down (n)
+  "Move the current line down by N lines."
+  (interactive "p")
+  (move-line (if (null n) 1 n)))
+
 (defun move-region (start end n)
   "Move the current region up or down by N lines."
   (interactive "r\np")
@@ -2306,6 +2329,20 @@ sets a transient keymap for repeated actions from ALIST."
   "Move the current line down by N lines."
   (interactive "r\np")
   (move-region start end (if (null n) 1 n)))
+
+(defun my-move-smart-up (n)
+  "Move the active region (if any) or the current line up by N lines."
+  (interactive "p")
+  (if (region-active-p)
+      (call-interactively 'move-region-up (list (prefix-numeric-value n)))
+    (move-line-up n)))
+
+(defun my-move-smart-down (n)
+  "Move the active region (if any) or the current line down by N lines."
+  (interactive "p")
+  (if (region-active-p)
+      (call-interactively 'move-region-down (list (prefix-numeric-value n)))
+    (move-line-down n)))
 #+end_src
 * Bindings
 ** Settings
@@ -2375,8 +2412,8 @@ sets a transient keymap for repeated actions from ALIST."
   "Commands for repeatable hl-todo navigation.")
 
 (defvar my-line-move-repeat-cmds
-  '(("p" . move-region-up)
-    ("n" . move-region-down)
+  '(("<up>" . my-move-smart-up)
+    ("<down>" . my-move-smart-down)
     ("q" . (lambda () (interactive) (message "Exited line movement repetition."))))
   "Commands for repeatable line/region movement.")
 
@@ -2453,7 +2490,11 @@ sets a transient keymap for repeated actions from ALIST."
     "r e" '(eval-region :wk "Evaluate elisp in region")
     "r i" '(indent-region :wk "Indent elisp in region")
     "r x" '(er/expand-region :wk "Expand region")
-    "r (" '(er/mark-outside-pairs :wk "Mark pairs"))
+    "r (" '(er/mark-outside-pairs :wk "Mark pairs")
+    "r <up>" `(,(my-def-rep-command my-line-move-repeat-cmds "<up>")
+               :wk "Move line/region up (Up/Down to repeat, q to quit)")
+    "r <down>" `(,(my-def-rep-command my-line-move-repeat-cmds "<down>")
+		 :wk "Move line/region down (Up/Down to repeat, q to quit)"))
   (leader-key
     "e" '(:ignore t :wk "evals")
     "e e" '(sanityinc/eval-last-sexp-or-region :wk "Evaluate elisp expression or region")
@@ -2662,13 +2703,7 @@ sets a transient keymap for repeated actions from ALIST."
     "c x" '(consult-complex-command :wk "Consult complex command")
     "c y" '(consult-yank-pop :wk "Consult yank pop")
     "c e" '(consult-recent-file :wk "Consult recent files")
-    "c s" '(consult-isearch-history :wk "Consult isearch history"))
-  (leader-key
-    "m" '(:ignore t :wk "move")
-    "m p" `(,(my-def-rep-command my-line-move-repeat-cmds "p")
-            :wk "Move line/region up (p/n to repeat, q to quit)")
-    "m n" `(,(my-def-rep-command my-line-move-repeat-cmds "n")
-            :wk "Move line/region down (p/n to repeat, q to quit)")))
+    "c s" '(consult-isearch-history :wk "Consult isearch history")))
 #+end_src
 ** Global
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
