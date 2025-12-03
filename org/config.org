@@ -2214,6 +2214,8 @@ With prefix ARG, find the ARG-th previous prime."
                 (buffer-list))))
 
 (defun my-def-rep-command (alist &optional initial-key)
+  "Create a command that runs the function for INITIAL-KEY once, then
+sets a transient keymap for repeated actions from ALIST."
   (let* ((initial-key (or initial-key (caar alist)))
          (initial-entry (assoc initial-key alist))
          (initial-func (cdr initial-entry))
@@ -2223,9 +2225,9 @@ With prefix ARG, find the ARG-th previous prime."
               (define-key keymap (kbd (car x)) (cdr x))))
           alist)
     `(lambda (arg)
-       (interactive "p")
+       (interactive "P")
        (when ',initial-func
-         (funcall ',initial-func arg))
+         (call-interactively ',initial-func (list arg)))
        (set-transient-map ',keymap t))))
 
 (defun my-org-fix-block-indentation ()
@@ -2284,6 +2286,26 @@ With prefix ARG, find the ARG-th previous prime."
 (defun insert-timestamp ()
   (interactive)
   (format-date "[%Y-%m-%d %A %H:%M:%S]"))
+
+(defun move-region (start end n)
+  "Move the current region up or down by N lines."
+  (interactive "r\np")
+  (let ((line-text (delete-and-extract-region start end)))
+    (forward-line n)
+    (let ((start (point)))
+      (insert line-text)
+      (setq deactivate-mark nil)
+      (set-mark start))))
+
+(defun move-region-up (start end n)
+  "Move the current line up by N lines."
+  (interactive "r\np")
+  (move-region start end (if (null n) -1 (- n))))
+
+(defun move-region-down (start end n)
+  "Move the current line down by N lines."
+  (interactive "r\np")
+  (move-region start end (if (null n) 1 n)))
 #+end_src
 * Bindings
 ** Settings
@@ -2351,6 +2373,12 @@ With prefix ARG, find the ARG-th previous prime."
     ("p" . hl-todo-previous)
     ("q" . (lambda () (interactive) (message "Exited hl-todo navigation."))))
   "Commands for repeatable hl-todo navigation.")
+
+(defvar my-line-move-repeat-cmds
+  '(("p" . move-region-up)
+    ("n" . move-region-down)
+    ("q" . (lambda () (interactive) (message "Exited line movement repetition."))))
+  "Commands for repeatable line/region movement.")
 
 (defun my-ibuffer-with-tmenu ()
   "Open Ibuffer and then casual-ibuffer-tmenu."
@@ -2634,7 +2662,13 @@ With prefix ARG, find the ARG-th previous prime."
     "c x" '(consult-complex-command :wk "Consult complex command")
     "c y" '(consult-yank-pop :wk "Consult yank pop")
     "c e" '(consult-recent-file :wk "Consult recent files")
-    "c s" '(consult-isearch-history :wk "Consult isearch history")))
+    "c s" '(consult-isearch-history :wk "Consult isearch history"))
+  (leader-key
+    "m" '(:ignore t :wk "move")
+    "m p" `(,(my-def-rep-command my-line-move-repeat-cmds "p")
+            :wk "Move line/region up (p/n to repeat, q to quit)")
+    "m n" `(,(my-def-rep-command my-line-move-repeat-cmds "n")
+            :wk "Move line/region down (p/n to repeat, q to quit)")))
 #+end_src
 ** Global
 #+begin_src emacs-lisp :tangle ~/.emacs.d/config.el
