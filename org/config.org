@@ -1621,6 +1621,7 @@
     :config
     (define-key tidal-mode-map (kbd "C-c C-.") 'tidal-run-line))
   (use-package tidal-highlight
+    :after tidal
     :ensure (tidal-highlight
 	     :host github
 	     :repo "j0lms/tidal-highlight"
@@ -1859,6 +1860,7 @@
       make-backup-files                       nil
       backup-directory-alist                  '(("." . "~/.emacs.d/backup"))
       backward-delete-char-untabify-method    'hungry
+      display-line-numbers-type               'relative
       sentence-end-double-space               nil
       recenter-positions                      '(top middle bottom)
       scroll-step                             1
