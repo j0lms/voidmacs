@@ -1344,7 +1344,7 @@
 (use-package dired-preview
   :defer t
   :init
-  (dired-preview-global-mode 1)
+  (dired-preview-global-mode 0)
   :config
   (setq dired-preview-delay 0.3))
 
@@ -1726,7 +1726,7 @@
 (use-package tree-sitter
   :defer t
   :config
-  (setq treesit-font-lock-level 3)
+  (setq treesit-font-lock-level 4)
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
 (use-package tree-sitter-langs
