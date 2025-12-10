@@ -1907,6 +1907,7 @@
       x-underline-at-descent-line             t
       pulse-flag                              t
       dired-listing-switches                  "-alk"
+      grep-command                            "grep -rHn "
       large-file-warning-threshold            (* 15 1024 1024)
       byte-compile-warnings                   '(cl-functions)
       ediff-split-window-function             'split-window-horizontally

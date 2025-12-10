@@ -6,8 +6,11 @@
 
 ;;; Code:
 
+(require 'treesit)
+
 (declare-function msbuild-2022-x86-setup "msbuild")
 (declare-function msbuild-2022-x64-setup "msbuild")
+(declare-function msbuild--compile-grammar-msvc "msbuild")
 
 (when (eq system-type 'windows-nt)
   (defvar msbuild-old-path-var (getenv "PATH"))
@@ -242,7 +245,83 @@ Uses /EHsc /Zi /Od flags. Output is named <filename>_d.exe."
              "cl.exe /EHsc /Zi /Od /Fe%s_d.exe \"%s\""
              filename (file-name-nondirectory (buffer-file-name))))
            (compilation-ask-about-save nil))
-      (call-interactively #'compile))))
+      (call-interactively #'compile)))
+
+  (defun msbuild--compile-grammar-msvc (lang source-dir out-dir)
+    "Compile the LANG grammar in SOURCE-DIR to OUT-DIR using cl.exe with MSVC flags."
+    (let* ((default-directory source-dir)
+           (out-file (format "libtree-sitter-%s.dll" lang))
+           (final-dest (expand-file-name out-file out-dir))
+           (scanner-c (expand-file-name "scanner.c" source-dir))
+           (scanner-cc (expand-file-name "scanner.cc" source-dir))
+           (srcs
+            (cons
+             "parser.c"
+             (cond
+              ((file-exists-p scanner-c)
+               (list "scanner.c"))
+              ((file-exists-p scanner-cc)
+               (list "scanner.cc"))
+              (t
+               nil))))
+           (args
+            (append
+             '("/nologo" "/LD" "/O2" "/Utf-8" "/I.")
+             srcs
+             (list (format "/Fe:%s" out-file)))))
+      (message "Compiling %s with MSVC..." lang)
+      (unless (eq 0 (apply #'call-process "cl.exe" nil t nil args))
+        (error
+         "MSVC compilation failed. Check the *Messages* buffer for output"))
+      (unless (file-exists-p out-dir)
+        (make-directory out-dir t))
+      (if (file-exists-p final-dest)
+          (condition-case nil
+              (rename-file final-dest (concat final-dest ".old") t)
+            (error
+             nil)))
+      (copy-file out-file final-dest t)
+      (mapc
+       (lambda (f)
+         (when (file-exists-p f)
+           (delete-file f)))
+       (directory-files "." nil "\\.\\(obj\\|lib\\|exp\\|dll\\)$"))
+      (message "Installed %s to %s" out-file out-dir)))
+
+  (defun msbuild-install-tree-sitter-grammar (lang)
+    "Build and install a tree-sitter grammar using the msbuild.el environment.
+Uses recipes from `treesit-language-source-alist'."
+    (interactive (list
+                  (intern
+                   (completing-read
+                    "Language: "
+                    (mapcar #'car treesit-language-source-alist)))))
+    (let ((recipe (alist-get lang treesit-language-source-alist)))
+      (unless recipe
+        (error
+         "No recipe found for %s in `treesit-language-source-alist'"
+         lang))
+      (let* ((url (nth 0 recipe))
+             (revision (nth 1 recipe))
+             (source-subdir (or (nth 2 recipe) "src"))
+             (install-dir (locate-user-emacs-file "tree-sitter"))
+             (workdir (make-temp-file "treesit-work" t))
+             (original-exec-path exec-path))
+        (unwind-protect
+            (progn
+              (msbuild-2022-x64-setup)
+              (setq exec-path
+                    (split-string (getenv "PATH") path-separator))
+              (message "Cloning %s..." url)
+              (if revision
+                  (call-process "git" nil nil nil "clone" "--depth" "1" "-b"
+				revision url workdir)
+                (call-process "git"nil nil nil "clone" "--depth" "1" url workdir))
+              (let ((full-source-dir
+                     (expand-file-name source-subdir workdir)))
+                (msbuild--compile-grammar-msvc
+                 lang full-source-dir install-dir)))
+          (delete-directory workdir t))))))
 
 (provide 'msbuild)
 ;;; msbuild.el ends here
