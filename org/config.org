@@ -1771,6 +1771,8 @@
   (("\\.html?\\'" . web-mode)
    ("\\.jsx\\'" . web-mode)
    ("\\.tsx\\'" . web-mode)
+   ("\\.gotmpl\\'" . web-mode)
+   ("\\.gohtml\\'" . web-mode)
    ("\\.phtml\\'" . web-mode)
    ("\\.php\\'" . web-mode)
    ("\\.tpl\\'" . web-mode)
