@@ -247,6 +247,66 @@ Uses /EHsc /Zi /Od flags. Output is named <filename>_d.exe."
            (compilation-ask-about-save nil))
       (call-interactively #'compile)))
 
+  (defun compile-msvc-x86-dll ()
+    "Set 32 bits build env for Windows C/C++ 2022 workload and compile a DLL.
+Uses /LD /EHsc flags. Output is named <filename>.dll."
+    (interactive)
+    (msbuild-2022-x86-setup)
+    (let* ((filename
+            (file-name-sans-extension
+             (file-name-nondirectory (buffer-file-name))))
+           (compile-command
+            (format
+             "cl.exe /LD /EHsc /Fe%s.dll \"%s\""
+             filename (file-name-nondirectory (buffer-file-name))))
+           (compilation-ask-about-save nil))
+      (call-interactively #'compile)))
+
+  (defun compile-msvc-x64-dll ()
+    "Set 64 bits build env for Windows C/C++ 2022 workload and compile a DLL.
+Uses /LD /EHsc flags. Output is named <filename>.dll."
+    (interactive)
+    (msbuild-2022-x64-setup)
+    (let* ((filename
+            (file-name-sans-extension
+             (file-name-nondirectory (buffer-file-name))))
+           (compile-command
+            (format
+             "cl.exe /LD /EHsc /Fe%s.dll \"%s\""
+             filename (file-name-nondirectory (buffer-file-name))))
+           (compilation-ask-about-save nil))
+      (call-interactively #'compile)))
+
+  (defun compile-msvc-x86-debug-dll ()
+    "Set 32 bits build env for Windows C/C++ 2022 workload and compile a debug DLL.
+Uses /LD /EHsc /Zi /Od flags. Output is named <filename>_d.dll."
+    (interactive)
+    (msbuild-2022-x86-setup)
+    (let* ((filename
+            (file-name-sans-extension
+             (file-name-nondirectory (buffer-file-name))))
+           (compile-command
+            (format
+             "cl.exe /LD /EHsc /Zi /Od /Fe%s_d.dll \"%s\""
+             filename (file-name-nondirectory (buffer-file-name))))
+           (compilation-ask-about-save nil))
+      (call-interactively #'compile)))
+
+  (defun compile-msvc-x64-debug-dll ()
+    "Set 64 bits build env for Windows C/C++ 2022 workload and compile a debug DLL.
+Uses /LD /EHsc /Zi /Od flags. Output is named <filename>_d.dll."
+    (interactive)
+    (msbuild-2022-x64-setup)
+    (let* ((filename
+            (file-name-sans-extension
+             (file-name-nondirectory (buffer-file-name))))
+           (compile-command
+            (format
+             "cl.exe /LD /EHsc /Zi /Od /Fe%s_d.dll \"%s\""
+             filename (file-name-nondirectory (buffer-file-name))))
+           (compilation-ask-about-save nil))
+      (call-interactively #'compile)))
+
   (defun msbuild--compile-grammar-msvc (lang source-dir out-dir)
     "Compile the LANG grammar in SOURCE-DIR to OUT-DIR using cl.exe with MSVC flags."
     (let* ((default-directory source-dir)
